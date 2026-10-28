@@ -739,6 +739,7 @@ canvas#chart{
 <!-- Intro video -->
 <div class="video-overlay" id="videoOverlay" hidden>
   <video id="introVideo" playsinline preload="auto"></video>
+    <div id="videoLoading" hidden style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:14px;letter-spacing:0.2em;color:#8fa9b8;">LOADING VIDEO… <span id="videoLoadPct" style="margin-left:8px;color:#e6bd7d;">0</span>%</div>
   <div class="video-error" id="videoError" hidden>
     <div class="video-error-title">VIDEO NOT FOUND</div>
     <div class="video-error-sub">Starting the game in <span id="videoCountdown">10</span>s</div>
@@ -1250,6 +1251,40 @@ function showAlarm(){
 // ===================== Intro video =====================
 let videoDone = true, videoErrShown = false, videoErrInterval = null;
 
+// Shows "LOADING VIDEO…" until the video has downloaded enough to play without stopping
+function waitForVideo(){
+  const loading = document.getElementById('videoLoading');
+  const pct = document.getElementById('videoLoadPct');
+  loading.hidden = false;
+  let started = false;
+  const t0 = Date.now();
+  const start = ()=>{
+    if(started || videoDone || videoErrShown) return;
+    started = true;
+    clearInterval(timer);
+    loading.hidden = true;
+    introVideo.play().catch(err=>{
+      if(err && err.name==='NotAllowedError'){
+        introVideo.muted = true;
+        introVideo.play().catch(()=>showVideoError());
+      } else if(!(err && err.name==='AbortError')){
+        showVideoError();
+      }
+    });
+  };
+  const timer = setInterval(()=>{
+    if(videoDone || videoErrShown){ clearInterval(timer); loading.hidden = true; return; }
+    const d = introVideo.duration;
+    if(d && introVideo.buffered.length){
+      const ahead = introVideo.buffered.end(introVideo.buffered.length - 1);
+      pct.textContent = Math.min(100, Math.round(ahead / d * 100));
+      if(ahead >= d - 0.5) start();          // fully downloaded
+    }
+    if(Date.now() - t0 > 30000) start();     // never wait more than 30 seconds
+  }, 250);
+  introVideo.addEventListener('canplaythrough', start, {once:true});
+}
+
 function playIntroVideo(){
   videoDone = false;
   videoErrShown = false;
@@ -1264,7 +1299,8 @@ function playIntroVideo(){
   introVideo.muted = false;
   introVideo.src = path;
   introVideo.load();
-  const p = introVideo.play();
+  waitForVideo(); return;
+  const p = null;
   if(p && p.catch){
     p.catch(err=>{
       if(videoDone || videoErrShown) return;
