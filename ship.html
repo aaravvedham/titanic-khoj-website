@@ -526,7 +526,7 @@ const loaderNote = document.getElementById('loaderNote');
 const MODEL_BYTES = 3562404;   // size of titanic.glb, for the progress bar
 
 async function fetchModelBytes(){
-  const res = await fetch('titanic.glb');
+  const res = await fetch('https://cdn.jsdelivr.net/gh/aaravvedham/titanic-khoj-website@main/titanic.glb');
   if(!res.ok) throw new Error('HTTP ' + res.status);
   const total = Number(res.headers.get('content-length')) || MODEL_BYTES;
   if(!(res.body && res.body.getReader)) return await res.arrayBuffer();
