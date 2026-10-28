@@ -1,0 +1,2324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>R.M.S. Titanic — Take the Helm</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Space+Mono:wght@400;700&display=swap');
+
+:root{
+  --abyss:#050a12;
+  --steel:#131d29;
+  --steel-light:#1b2733;
+  --steel-border:#2c3d4d;
+  --brass:#b9905a;
+  --brass-bright:#e6bd7d;
+  --brass-dark:#5c4526;
+  --brass-dim:#7a5f3a;
+  --ivory:#ece3d0;
+  --fog:#8fa9b8;
+  --alarm:#d1483a;
+  --ok:#5a9b78;
+  --font-display:'Cinzel',serif;
+  --font-narrative:'Cormorant Garamond',serif;
+  --font-mono:'Space Mono',monospace;
+}
+
+*{box-sizing:border-box;}
+
+html,body{
+  margin:0;
+  padding:0;
+  height:100%;
+  touch-action:manipulation;
+  -webkit-user-select:none;
+  user-select:none;
+  background:var(--abyss);
+  color:var(--ivory);
+  font-family:var(--font-narrative);
+  overflow:hidden;
+}
+
+body{
+  background:
+    radial-gradient(ellipse at 50% -10%, #0e1b2c 0%, transparent 55%),
+    linear-gradient(180deg,var(--abyss) 0%, #030509 100%);
+}
+
+#app{
+  height:100vh;
+  width:100vw;
+  transform-origin:0 0;
+  padding:12px 16px 14px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+/* ---------- Header ---------- */
+.bridge-header{
+  flex:0 0 auto;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:9px 20px;
+  background:linear-gradient(180deg,var(--steel-light),var(--steel));
+  border:1px solid var(--steel-border);
+  border-radius:4px;
+  box-shadow:0 1px 0 rgba(255,255,255,0.04) inset, 0 6px 18px rgba(0,0,0,0.5);
+}
+.nameplate-block{display:flex;align-items:baseline;gap:12px;}
+.nameplate{
+  font-family:var(--font-display);
+  font-weight:700;
+  letter-spacing:0.14em;
+  font-size:20px;
+  color:var(--brass-bright);
+  text-shadow:0 0 12px rgba(230,189,125,0.25);
+}
+.subtitle{
+  font-family:var(--font-mono);
+  font-size:9.5px;
+  letter-spacing:0.18em;
+  color:var(--fog);
+  text-transform:uppercase;
+}
+.clock-block{
+  text-align:right;
+  font-family:var(--font-mono);
+  color:var(--brass-bright);
+  display:flex;
+  align-items:baseline;
+  gap:8px;
+}
+.header-actions{display:flex;align-items:center;gap:8px;}
+.hdr-btn{
+  font-family:var(--font-mono);
+  font-size:10.5px;
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+  color:var(--fog);
+  background:rgba(0,0,0,0.25);
+  border:1px solid var(--steel-border);
+  border-radius:3px;
+  padding:8px 12px;
+  min-height:36px;
+  cursor:pointer;
+  text-decoration:none;
+  display:inline-flex;
+  align-items:center;
+}
+.hdr-btn:hover,.hdr-btn:focus-visible{border-color:var(--brass);color:var(--brass-bright);outline:none;}
+.hdr-btn[hidden]{display:none;}
+.clock-label{font-size:9px;letter-spacing:0.2em;color:var(--fog);text-transform:uppercase;}
+.clock{font-size:18px;letter-spacing:0.06em;}
+
+/* ---------- Main layout ---------- */
+.bridge-main{
+  flex:1 1 auto;
+  min-height:0;
+  display:flex;
+  gap:14px;
+}
+.side-col{
+  flex:0 0 300px;
+  min-height:0;
+  display:flex;
+}
+.center-col{
+  flex:1 1 auto;
+  min-width:0;
+  min-height:0;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+.panel{
+  background:linear-gradient(180deg,var(--steel-light),var(--steel));
+  border:1px solid var(--steel-border);
+  border-radius:4px;
+  padding:14px 14px 16px;
+  box-shadow:0 6px 16px rgba(0,0,0,0.45), 0 1px 0 rgba(255,255,255,0.03) inset;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  width:100%;
+}
+.panel h3{
+  margin:0;
+  font-family:var(--font-mono);
+  font-size:11px;
+  letter-spacing:0.2em;
+  color:var(--brass);
+  text-transform:uppercase;
+  border-bottom:1px solid var(--steel-border);
+  padding-bottom:8px;
+  flex:0 0 auto;
+}
+
+/* ---------- Wheel panel ---------- */
+.wheel-panel{align-items:center;text-align:center;justify-content:flex-start;touch-action:none;}
+.wheel-mount{
+  position:relative;
+  width:250px;
+  height:250px;
+  margin:6px auto 2px;
+  cursor:grab;
+  touch-action:none;
+  user-select:none;
+  flex:0 0 auto;
+}
+.wheel-mount:active{cursor:grabbing;}
+.wheel-mount svg{width:100%;height:100%;display:block;filter:drop-shadow(0 8px 14px rgba(0,0,0,0.5));}
+#wheelGroup{transform-origin:100px 100px;transition:none;}
+.rudder-readout{
+  font-family:var(--font-mono);
+  font-size:14px;
+  letter-spacing:0.1em;
+  color:var(--fog);
+}
+.rudder-readout span{color:var(--brass-bright);font-weight:700;font-size:19px;}
+.quick-buttons{
+  display:flex;
+  gap:6px;
+  width:100%;
+  margin-top:auto;
+}
+.quick-buttons button{flex:1;}
+
+button.brass-btn{
+  font-family:var(--font-mono);
+  font-size:11px;
+  min-height:52px;
+  letter-spacing:0.05em;
+  color:var(--ivory);
+  background:linear-gradient(180deg,#2a3947,#182430);
+  border:1px solid var(--steel-border);
+  border-radius:3px;
+  padding:10px 6px;
+  cursor:pointer;
+  transition:background 0.15s, border-color 0.15s, transform 0.05s;
+}
+button.brass-btn:hover{border-color:var(--brass);color:var(--brass-bright);}
+button.brass-btn:active{transform:translateY(1px);}
+
+.controls-hint{
+  font-family:var(--font-mono);
+  font-size:9.5px;
+  color:#5c7382;
+  letter-spacing:0.05em;
+  text-align:center;
+}
+
+/* ---------- Telegraph panel ---------- */
+.telegraph-panel{align-items:center;text-align:center;justify-content:flex-start;}
+.telegraph-mount{
+  position:relative;
+  width:270px;
+  height:270px;
+  margin:2px auto 0;
+  cursor:grab;
+  touch-action:none;
+  user-select:none;
+  flex:0 0 auto;
+}
+.telegraph-mount:active{cursor:grabbing;}
+.telegraph-mount svg{width:100%;height:100%;display:block;overflow:visible;filter:drop-shadow(0 8px 14px rgba(0,0,0,0.5));}
+.telegraph-tick{cursor:pointer;}
+.speed-readout{
+  font-family:var(--font-mono);
+  font-size:13px;
+  color:var(--fog);
+  letter-spacing:0.08em;
+  margin-top:auto;
+}
+.speed-readout .order-label{color:var(--brass-bright);font-weight:700;font-size:15px;}
+
+/* ---------- Center column / bridge window ---------- */
+.chart-wrap{
+  position:relative;
+  background:#000;
+  border:1px solid var(--steel-border);
+  border-radius:4px;
+  box-shadow:0 6px 18px rgba(0,0,0,0.5);
+  overflow:hidden;
+  flex:1 1 auto;
+  min-height:0;
+}
+canvas#chart{
+  position:absolute;
+  inset:0;
+  display:block;
+}
+
+.window-frame{
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  z-index:6;
+}
+.window-frame .vignette{
+  position:absolute; inset:0;
+  background:radial-gradient(ellipse at 50% 55%, transparent 45%, rgba(0,0,0,0.55) 100%);
+}
+.window-frame .glass-sheen{
+  position:absolute; inset:0;
+  background:linear-gradient(115deg, rgba(255,255,255,0.05) 0%, transparent 18%, transparent 82%, rgba(255,255,255,0.04) 100%);
+}
+.window-frame .mullion-v{
+  position:absolute; top:0; bottom:0; width:10px;
+  background:linear-gradient(90deg,#0b0703,#2a1c10,#0b0703);
+  box-shadow:0 0 8px rgba(0,0,0,0.6);
+}
+.window-frame .mullion-v.left{left:20%;}
+.window-frame .mullion-v.right{right:20%;}
+.window-frame .mullion-h{
+  position:absolute; left:0; right:0; height:9px;
+  background:linear-gradient(180deg,#0b0703,#2a1c10,#0b0703);
+  top:14%;
+}
+.window-frame .sill{
+  position:absolute; left:0; right:0; bottom:0; height:7%;
+  background:linear-gradient(180deg,#1a130b,#050302);
+  border-top:2px solid #2a1c10;
+}
+.window-frame .frame-border{
+  position:absolute; inset:0;
+  border:12px solid;
+  border-image:linear-gradient(180deg,#241708,#050302) 1;
+  box-sizing:border-box;
+}
+
+.alarm-banner{
+  position:absolute;
+  top:22px;
+  left:22px;
+  font-family:var(--font-mono);
+  font-weight:700;
+  font-size:10px;
+  letter-spacing:0.14em;
+  color:#ffdcd4;
+  background:rgba(90,15,10,0.7);
+  border:1px solid var(--alarm);
+  padding:3px 9px;
+  border-radius:3px;
+  box-shadow:0 0 10px rgba(209,72,58,0.4);
+  animation:alarmFlash 0.9s infinite;
+  pointer-events:none;
+  z-index:8;
+  white-space:nowrap;
+}
+.alarm-banner.hidden{opacity:0;visibility:hidden;animation:none;}
+@keyframes alarmFlash{
+  0%,100%{opacity:1;}
+  50%{opacity:0.55;}
+}
+
+.hud-status{
+  position:absolute;
+  bottom:calc(7% + 12px);
+  left:24px;
+  font-family:var(--font-mono);
+  font-size:11px;
+  letter-spacing:0.12em;
+  color:var(--fog);
+  background:rgba(5,10,18,0.6);
+  padding:4px 12px;
+  border:1px solid rgba(143,169,184,0.25);
+  border-radius:3px;
+  pointer-events:none;
+  white-space:nowrap;
+  z-index:8;
+}
+
+/* ---------- Binnacle (compass) strip ---------- */
+.binnacle-panel{
+  flex:0 0 176px;
+  padding:10px 18px;
+  flex-direction:row;
+  align-items:center;
+  justify-content:center;
+  gap:30px;
+}
+.binnacle-info{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+  min-width:150px;
+}
+.binnacle-info.left{align-items:flex-end;text-align:right;}
+.binnacle-info.right{align-items:flex-start;text-align:left;}
+.binnacle-info h3{border:none;padding:0;}
+.big-readout{
+  font-family:var(--font-mono);
+  font-size:30px;
+  font-weight:700;
+  color:var(--brass-bright);
+  letter-spacing:0.06em;
+  line-height:1.1;
+  text-shadow:0 0 10px rgba(230,189,125,0.2);
+}
+.sub-readout{
+  font-family:var(--font-display);
+  font-size:13px;
+  letter-spacing:0.22em;
+  color:var(--fog);
+}
+.compass-mount{
+  width:156px;
+  height:156px;
+  flex:0 0 auto;
+}
+.compass-mount{border-radius:50%;box-shadow:0 6px 14px rgba(0,0,0,0.6);}
+.compass-mount svg{width:100%;height:100%;display:block;}
+
+/* ---------- Overlays ---------- */
+.overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(2,4,8,0.86);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:50;
+  padding:20px;
+}
+.overlay[hidden]{display:none;}
+.overlay-card{
+  transform:scale(var(--ui-scale,1));
+  max-width:560px;
+  width:100%;
+  background:linear-gradient(180deg,var(--steel-light),var(--steel));
+  border:1px solid var(--brass-dim);
+  border-radius:6px;
+  padding:34px 32px 28px;
+  box-shadow:0 20px 60px rgba(0,0,0,0.7), 0 0 0 6px rgba(0,0,0,0.35);
+  text-align:center;
+  position:relative;
+  max-height:calc(92vh / var(--ui-scale,1));
+  overflow:auto;
+}
+.overlay-card::before{
+  content:'';
+  position:absolute;
+  inset:8px;
+  border:1px solid rgba(185,144,90,0.25);
+  border-radius:3px;
+  pointer-events:none;
+}
+.overlay-eyebrow{
+  font-family:var(--font-mono);
+  font-size:10.5px;
+  letter-spacing:0.25em;
+  color:var(--fog);
+  text-transform:uppercase;
+  margin-bottom:10px;
+}
+.overlay-title{
+  font-family:var(--font-display);
+  font-weight:700;
+  font-size:clamp(22px,4vw,30px);
+  letter-spacing:0.08em;
+  color:var(--brass-bright);
+  margin:0 0 14px;
+}
+.overlay-narrative{
+  font-family:var(--font-narrative);
+  font-style:italic;
+  font-size:18px;
+  line-height:1.5;
+  color:#d8d0bd;
+  margin:0 0 22px;
+}
+.stat-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin:0 0 22px;
+  text-align:left;
+}
+.stat-box{
+  background:rgba(0,0,0,0.3);
+  border:1px solid var(--steel-border);
+  border-radius:4px;
+  padding:10px 12px;
+}
+.stat-label{
+  font-family:var(--font-mono);
+  font-size:9.5px;
+  letter-spacing:0.15em;
+  color:var(--fog);
+  text-transform:uppercase;
+}
+.stat-value{
+  font-family:var(--font-mono);
+  font-size:19px;
+  font-weight:700;
+  color:var(--ivory);
+  margin-top:2px;
+}
+.stat-value.good{color:var(--ok);}
+.stat-value.bad{color:var(--alarm);}
+.overlay-note{
+  font-family:var(--font-narrative);
+  font-size:14px;
+  color:var(--fog);
+  margin:0 0 22px;
+  line-height:1.5;
+}
+.countdown-note{
+  font-family:var(--font-mono);
+  font-size:10.5px;
+  letter-spacing:0.14em;
+  color:#6f8796;
+  margin:14px 0 0;
+  min-height:1em;
+}
+.cta-btn{
+  font-family:var(--font-display);
+  font-weight:600;
+  letter-spacing:0.1em;
+  font-size:14px;
+  color:#1a130a;
+  background:linear-gradient(180deg,var(--brass-bright),var(--brass));
+  border:none;
+  border-radius:3px;
+  padding:13px 30px;
+  cursor:pointer;
+  box-shadow:0 4px 14px rgba(0,0,0,0.4);
+  transition:transform 0.08s, box-shadow 0.15s;
+}
+.cta-btn:hover{box-shadow:0 6px 20px rgba(230,189,125,0.35);}
+.cta-btn:active{transform:translateY(1px);}
+.text-link{
+  display:inline-block;
+  margin-top:16px;
+  font-family:var(--font-mono);
+  font-size:11px;
+  letter-spacing:0.14em;
+  color:var(--fog);
+  text-decoration:none;
+  border-bottom:1px solid rgba(143,169,184,0.35);
+  padding-bottom:2px;
+}
+.text-link:hover{color:var(--brass-bright);border-color:var(--brass);}
+
+/* ---------- Intro video ---------- */
+.video-overlay{
+  position:fixed;
+  inset:0;
+  background:#000;
+  z-index:60;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.video-overlay[hidden]{display:none;}
+.video-overlay video{width:100%;height:100%;object-fit:contain;background:#000;display:block;}
+.video-overlay video[hidden]{display:none;}
+.video-error{
+  position:absolute;
+  inset:0;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:14px;
+  text-align:center;
+  padding:20px;
+}
+.video-error[hidden]{display:none;}
+.video-error-title{
+  font-family:var(--font-display);
+  font-weight:700;
+  font-size:clamp(24px,4.5vw,40px);
+  letter-spacing:0.16em;
+  color:#ffb3a6;
+  text-shadow:0 0 22px rgba(209,72,58,0.55);
+}
+.video-error-sub{
+  font-family:var(--font-mono);
+  font-size:13px;
+  letter-spacing:0.15em;
+  color:var(--fog);
+}
+.video-skip{
+  position:absolute;
+  right:24px;
+  bottom:24px;
+  font-family:var(--font-mono);
+  font-size:11px;
+  letter-spacing:0.15em;
+  color:var(--ivory);
+  background:rgba(20,30,40,0.6);
+  border:1px solid var(--steel-border);
+  border-radius:3px;
+  padding:8px 14px;
+  cursor:pointer;
+}
+.video-skip:hover{border-color:var(--brass);color:var(--brass-bright);}
+
+.screen-flash{
+  position:fixed;
+  inset:0;
+  background:radial-gradient(circle at 50% 45%, rgba(255,255,255,0.85), rgba(209,72,58,0.35) 45%, transparent 75%);
+  opacity:0;
+  pointer-events:none;
+  z-index:40;
+}
+.screen-flash.go{animation:flashPulse 0.7s ease-out;}
+@keyframes flashPulse{
+  0%{opacity:0.9;}
+  100%{opacity:0;}
+}
+
+/* Fallback for portrait/narrow use */
+@media (max-width:820px), (orientation:portrait){
+  #app{height:auto;overflow:auto;}
+  html,body{overflow:auto;}
+  .bridge-main{flex-direction:column;}
+  .side-col{flex:0 0 auto;}
+  .chart-wrap{min-height:340px;}
+  .binnacle-panel{flex:0 0 auto;flex-wrap:wrap;gap:16px;}
+  .binnacle-info{min-width:0;}
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <header class="bridge-header">
+    <div class="nameplate-block">
+      <div class="nameplate">R.M.S. TITANIC</div>
+      <div class="subtitle">Bridge — North Atlantic, 41°46′N 50°14′W</div>
+    </div>
+    <div class="header-actions">
+      <a class="hdr-btn" href="index.html">⟵ Home</a>
+      <button class="hdr-btn" id="qualityBtn" type="button">Graphics: Auto</button>
+      <button class="hdr-btn" id="fullscreenBtn" type="button">Full screen</button>
+      <div class="clock-block">
+        <div class="clock-label">Ship's Time</div>
+        <div class="clock" id="clockDisplay">11:39:06 PM</div>
+      </div>
+    </div>
+  </header>
+
+  <main class="bridge-main">
+
+    <div class="side-col">
+      <div class="panel wheel-panel">
+        <h3>Helm — Ship's Wheel</h3>
+        <div class="wheel-mount" id="wheelMount">
+          <svg viewBox="0 0 200 200">
+            <circle cx="100" cy="100" r="96" fill="none" stroke="#0c141c" stroke-width="3"/>
+            <g id="wheelGroup">
+              <circle cx="100" cy="100" r="82" fill="none" stroke="#3a2a17" stroke-width="10"/>
+              <circle cx="100" cy="100" r="82" fill="none" stroke="var(--brass)" stroke-width="6"/>
+              <g id="spokes"></g>
+              <circle cx="100" cy="100" r="18" fill="#2a3947" stroke="var(--brass-bright)" stroke-width="2"/>
+              <circle cx="100" cy="100" r="4" fill="var(--brass-bright)"/>
+            </g>
+          </svg>
+        </div>
+        <div class="rudder-readout">RUDDER <span id="rudderVal">0°</span></div>
+        <div class="quick-buttons">
+          <button class="brass-btn" data-quick="-35">◀ HARD PORT</button>
+          <button class="brass-btn" data-quick="0">AMIDSHIPS</button>
+          <button class="brass-btn" data-quick="35">HARD STBD ▶</button>
+        </div>
+        <div class="controls-hint">Turn the wheel with your finger, or swipe left / right on this panel</div>
+      </div>
+    </div>
+
+    <div class="center-col">
+      <div class="chart-wrap">
+        <canvas id="chart"></canvas>
+        <div class="window-frame">
+          <div class="vignette"></div>
+          <div class="glass-sheen"></div>
+          <div class="mullion-v left"></div>
+          <div class="mullion-v right"></div>
+          <div class="mullion-h"></div>
+          <div class="sill"></div>
+          <div class="frame-border"></div>
+        </div>
+        <div class="alarm-banner hidden" id="alarmBanner">ICEBERG — RIGHT AHEAD</div>
+        <div class="hud-status" id="hudStatus">STEADY — HOLDING COURSE</div>
+      </div>
+
+      <div class="panel binnacle-panel">
+        <div class="binnacle-info left">
+          <h3>Compass Heading</h3>
+          <div class="big-readout" id="headingVal">000°</div>
+          <div class="sub-readout" id="headingCard">N</div>
+        </div>
+
+        <div class="compass-mount">
+          <svg viewBox="0 0 200 200">
+            <defs>
+              <radialGradient id="cmpBezel" cx="35%" cy="30%" r="75%">
+                <stop offset="0%" stop-color="#f0d19a"/>
+                <stop offset="55%" stop-color="#b9905a"/>
+                <stop offset="100%" stop-color="#5c4526"/>
+              </radialGradient>
+              <radialGradient id="cmpCard" cx="50%" cy="45%" r="60%">
+                <stop offset="0%" stop-color="#f4ecd9"/>
+                <stop offset="78%" stop-color="#ddd0b2"/>
+                <stop offset="100%" stop-color="#b3a37d"/>
+              </radialGradient>
+              <linearGradient id="cmpGlass" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#ffffff" stop-opacity="0.38"/>
+                <stop offset="42%" stop-color="#ffffff" stop-opacity="0"/>
+                <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+              </linearGradient>
+              <linearGradient id="needleRedL" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stop-color="#e2523f"/><stop offset="100%" stop-color="#c2382b"/>
+              </linearGradient>
+            </defs>
+            <circle cx="100" cy="100" r="97" fill="url(#cmpBezel)" stroke="#3a2a15" stroke-width="2"/>
+            <circle cx="100" cy="100" r="88" fill="none" stroke="#6b4c28" stroke-width="1"/>
+            <circle cx="100" cy="100" r="86" fill="#1a130a"/>
+            <circle cx="100" cy="100" r="83" fill="url(#cmpCard)"/>
+            <g id="compassCard"></g>
+            <g id="compassNeedle">
+              <polygon points="100,26 107.5,100 100,100" fill="url(#needleRedL)"/>
+              <polygon points="100,26 92.5,100 100,100" fill="#8e2219"/>
+              <polygon points="100,170 107.5,100 100,100" fill="#a8a294"/>
+              <polygon points="100,170 92.5,100 100,100" fill="#e3ddcf"/>
+              <line x1="100" y1="30" x2="100" y2="166" stroke="rgba(0,0,0,0.25)" stroke-width="0.6"/>
+            </g>
+            <circle cx="100" cy="100" r="9" fill="#5c4526" stroke="#e6bd7d" stroke-width="1.5"/>
+            <circle cx="100" cy="100" r="4" fill="#e6bd7d"/>
+            <circle cx="100" cy="100" r="83" fill="url(#cmpGlass)"/>
+            <path d="M 100 4 L 106 13 L 94 13 Z" fill="#241708" stroke="#e6bd7d" stroke-width="1"/>
+          </svg>
+        </div>
+
+        <div class="binnacle-info right">
+          <h3>Speed</h3>
+          <div class="big-readout" id="speedVal">0.0</div>
+          <div class="sub-readout" id="speedDir">KNOTS</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col">
+      <div class="panel telegraph-panel">
+        <h3>Engine Order Telegraph</h3>
+        <div class="telegraph-mount" id="telegraphMount">
+          <svg id="telegraphSvg" viewBox="0 0 240 240">
+            <g id="telegraphFace"></g>
+          </svg>
+        </div>
+        <div class="speed-readout">ORDERED: <span class="order-label" id="orderLabel">FULL AHEAD</span></div>
+        <div class="controls-hint">Drag the lever around the dial, or tap a setting</div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<div class="screen-flash" id="screenFlash"></div>
+
+<!-- Intro overlay (main screen) -->
+<div class="overlay" id="introOverlay">
+  <div class="overlay-card">
+    <div class="overlay-eyebrow">April 14th, 1912 · 11:39 PM</div>
+    <h1 class="overlay-title">Iceberg, Right Ahead</h1>
+    <p class="overlay-narrative">The night is flat calm and moonless. Through the bridge windows the sea is black glass. Somewhere dead ahead, the lookout in the crow's nest has just struck three bells. You are the officer of the watch. The wheel, and every life aboard, is now yours to command.</p>
+    <p class="overlay-note">Watch the window, not a map — you'll judge this by eye, the way it was really done. Steer with the ship's wheel, order the engines with the telegraph lever. You have only moments before she reaches the ice.</p>
+    <button class="cta-btn" id="startBtn">Take the Helm</button>
+    <div><a class="text-link" href="index.html">Back to the home page</a></div>
+  </div>
+</div>
+
+<!-- Intro video -->
+<div class="video-overlay" id="videoOverlay" hidden>
+  <video id="introVideo" playsinline preload="auto"></video>
+  <div class="video-error" id="videoError" hidden>
+    <div class="video-error-title">VIDEO NOT FOUND</div>
+    <div class="video-error-sub">Starting the game in <span id="videoCountdown">10</span>s</div>
+  </div>
+  <button class="video-skip" id="videoSkip">SKIP ▸</button>
+</div>
+
+<!-- End overlay -->
+<div class="overlay" id="endOverlay" hidden>
+  <div class="overlay-card">
+    <div class="overlay-eyebrow" id="endEyebrow">Outcome</div>
+    <h1 class="overlay-title" id="endTitle">—</h1>
+    <p class="overlay-narrative" id="endNarrative">—</p>
+    <div class="stat-grid">
+      <div class="stat-box"><div class="stat-label">Souls Aboard</div><div class="stat-value" id="statTotal">2,224</div></div>
+      <div class="stat-box"><div class="stat-label">Time to Ice</div><div class="stat-value" id="statTime">—</div></div>
+      <div class="stat-box"><div class="stat-label">Survived</div><div class="stat-value good" id="statSurvived">—</div></div>
+      <div class="stat-box"><div class="stat-label">Lost</div><div class="stat-value bad" id="statLost">—</div></div>
+    </div>
+    <p class="overlay-note" id="endHistorical">—</p>
+    <button class="cta-btn" id="restartBtn">Sail Again</button>
+    <p class="countdown-note" id="endCountdown"></p>
+  </div>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+/* =====================================================================
+   INTRO VIDEO — PASTE YOUR VIDEO PATH BETWEEN THE QUOTES BELOW
+   ---------------------------------------------------------------------
+   Examples:
+     "intro.mp4"                        (video in the same folder as this file)
+     "videos/titanic-intro.mp4"         (a sub-folder next to this file)
+     "file:///C:/Users/You/Videos/intro.mp4"   (full path — use forward slashes)
+     "https://example.com/intro.mp4"    (a web link)
+   Leave it empty ("") and the game shows "VIDEO NOT FOUND" and starts in 10s.
+   ===================================================================== */
+const INTRO_VIDEO_PATH = "intro.mp4";
+
+// ===================== World / physics constants =====================
+const ICE_RADIUS = 34, SHIP_RADIUS = 14;
+const PX_PER_KNOT_SEC = 0.9;
+const ICEBERG_START_DIST = 360;
+const MAX_RUDDER = 35;
+const MAX_RUDDER_RATE = 40;
+const TURN_COEF = 0.20;
+const ASTERN_TURN_MULT = 0.5;
+const TOTAL_SOULS = 2224;
+const HISTORICAL_LOST = 1502;
+const PASSED_BUFFER = 16;
+const SAFETY_TIMEOUT = 60;
+const FOV_DEG = 66;
+const RETURN_TO_MENU_SECS = 15;
+const VIDEO_ERROR_WAIT_SECS = 10;
+const START_OFFSET_SECS = 6;   // game begins at 11:39:06
+
+const TELEGRAPH_STEPS = [
+  {label:'FULL ASTERN', speed:-10, angle:-80},
+  {label:'HALF ASTERN', speed:-6,  angle:-52},
+  {label:'SLOW ASTERN', speed:-3,  angle:-24},
+  {label:'STOP',        speed:0,   angle:0},
+  {label:'SLOW AHEAD',  speed:8,   angle:24},
+  {label:'HALF AHEAD',  speed:15,  angle:52},
+  {label:'FULL AHEAD',  speed:22,  angle:80},
+];
+
+// ===================== DOM refs =====================
+const canvas = document.getElementById('chart');
+let ctx = canvas.getContext('2d');
+const chartWrap = canvas.parentElement;
+let DPR = 1;            // backing pixels per layout pixel (the render scale)
+let VW = 800, VH = 480;
+let UI_SCALE = 1;       // whole-interface zoom on very large screens (4K)
+
+// ---- Graphics quality: 'auto' picks low on slow machines like smartboards ----
+const QUALITY_CAPS = { high:[1280,720], low:[800,450] };
+let qualitySetting = 'auto';
+try{ qualitySetting = localStorage.getItem('titanic-quality') || 'auto'; }catch(e){}
+if(!['auto','high','low'].includes(qualitySetting)) qualitySetting = 'auto';
+let LOWQ = qualitySetting==='low';
+
+function applyUiScale(){
+  const appEl = document.getElementById('app');
+  const narrow = window.matchMedia('(max-width:820px), (orientation:portrait)').matches;
+  UI_SCALE = narrow ? 1 : Math.max(1, Math.min(window.innerWidth/1600, window.innerHeight/900));
+  if(UI_SCALE > 1.02){
+    appEl.style.width = (window.innerWidth/UI_SCALE)+'px';
+    appEl.style.height = (window.innerHeight/UI_SCALE)+'px';
+    appEl.style.transform = `scale(${UI_SCALE})`;
+  } else {
+    UI_SCALE = 1;
+    appEl.style.width = ''; appEl.style.height = ''; appEl.style.transform = '';
+  }
+  document.documentElement.style.setProperty('--ui-scale', UI_SCALE);
+}
+
+function resizeCanvas(){
+  VW = Math.max(200, chartWrap.clientWidth);
+  VH = Math.max(150, chartWrap.clientHeight);
+  const [capW, capH] = QUALITY_CAPS[LOWQ ? 'low' : 'high'];
+  const physical = (window.devicePixelRatio || 1) * UI_SCALE;
+  DPR = Math.max(0.35, Math.min(physical, capW/VW, capH/VH));
+  canvas.width = Math.round(VW*DPR);
+  canvas.height = Math.round(VH*DPR);
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+}
+function onResize(){ applyUiScale(); resizeCanvas(); }
+new ResizeObserver(resizeCanvas).observe(chartWrap);
+window.addEventListener('resize', onResize);
+onResize();
+
+const wheelMount = document.getElementById('wheelMount');
+const wheelGroup = document.getElementById('wheelGroup');
+const spokesG = document.getElementById('spokes');
+const rudderValEl = document.getElementById('rudderVal');
+const headingValEl = document.getElementById('headingVal');
+const headingCardEl = document.getElementById('headingCard');
+const speedValEl = document.getElementById('speedVal');
+const speedDirEl = document.getElementById('speedDir');
+const orderLabelEl = document.getElementById('orderLabel');
+const clockDisplay = document.getElementById('clockDisplay');
+const hudStatus = document.getElementById('hudStatus');
+const alarmBanner = document.getElementById('alarmBanner');
+const introOverlay = document.getElementById('introOverlay');
+const endOverlay = document.getElementById('endOverlay');
+const endCountdown = document.getElementById('endCountdown');
+const startBtn = document.getElementById('startBtn');
+const restartBtn = document.getElementById('restartBtn');
+const screenFlash = document.getElementById('screenFlash');
+const telegraphMount = document.getElementById('telegraphMount');
+const telegraphFace = document.getElementById('telegraphFace');
+const compassCard = document.getElementById('compassCard');
+const compassNeedle = document.getElementById('compassNeedle');
+const videoOverlay = document.getElementById('videoOverlay');
+const introVideo = document.getElementById('introVideo');
+const videoError = document.getElementById('videoError');
+const videoCountdownEl = document.getElementById('videoCountdown');
+const videoSkip = document.getElementById('videoSkip');
+
+// Build wheel spokes (8)
+for(let i=0;i<8;i++){
+  const a = (i/8)*Math.PI*2;
+  const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+  line.setAttribute('x1',100+18*Math.cos(a)); line.setAttribute('y1',100+18*Math.sin(a));
+  line.setAttribute('x2',100+82*Math.cos(a)); line.setAttribute('y2',100+82*Math.sin(a));
+  line.setAttribute('stroke', i%2===0 ? '#c9a06a' : '#7a5f3a');
+  line.setAttribute('stroke-width','5');
+  line.setAttribute('stroke-linecap','round');
+  spokesG.appendChild(line);
+  const knob = document.createElementNS('http://www.w3.org/2000/svg','circle');
+  knob.setAttribute('cx', 100+90*Math.cos(a));
+  knob.setAttribute('cy', 100+90*Math.sin(a));
+  knob.setAttribute('r','4.5');
+  knob.setAttribute('fill','#3a2a17');
+  knob.setAttribute('stroke','var(--brass-bright)');
+  knob.setAttribute('stroke-width','1');
+  spokesG.appendChild(knob);
+}
+
+// ===================== SVG helper =====================
+const SVGNS = 'http://www.w3.org/2000/svg';
+function svgEl(tag, attrs){
+  const el = document.createElementNS(SVGNS, tag);
+  for(const k in attrs) el.setAttribute(k, attrs[k]);
+  return el;
+}
+
+// ===================== Engine order telegraph face =====================
+const TCX = 120, TCY = 120;
+let needleOrder, needleResponse;
+
+function buildTelegraphFace(){
+  telegraphFace.appendChild(svgEl('ellipse',{cx:TCX,cy:TCY+118,rx:46,ry:10,fill:'rgba(0,0,0,0.45)'}));
+
+  const bezelGrad = svgEl('radialGradient',{id:'bezelGrad',cx:'35%',cy:'30%',r:'75%'});
+  bezelGrad.appendChild(svgEl('stop',{offset:'0%','stop-color':'#f0d19a'}));
+  bezelGrad.appendChild(svgEl('stop',{offset:'55%','stop-color':'#b9905a'}));
+  bezelGrad.appendChild(svgEl('stop',{offset:'100%','stop-color':'#6b4c28'}));
+  const defs = svgEl('defs',{});
+  defs.appendChild(bezelGrad);
+  telegraphFace.appendChild(defs);
+
+  telegraphFace.appendChild(svgEl('circle',{cx:TCX,cy:TCY,r:108,fill:'url(#bezelGrad)'}));
+  telegraphFace.appendChild(svgEl('circle',{cx:TCX,cy:TCY,r:108,fill:'none',stroke:'#3a2a15',"stroke-width":2}));
+  telegraphFace.appendChild(svgEl('circle',{cx:TCX,cy:TCY,r:94,fill:'#0b0b0d'}));
+  telegraphFace.appendChild(svgEl('circle',{cx:TCX,cy:TCY,r:94,fill:'none',stroke:'#3a3f44',"stroke-width":1.5}));
+
+  for(let i=0;i<16;i++){
+    const a = (i/16)*Math.PI*2;
+    telegraphFace.appendChild(svgEl('circle',{cx:TCX+101*Math.cos(a), cy:TCY+101*Math.sin(a), r:2.1, fill:'#4a3620'}));
+  }
+
+  // coloured sector bands: red = astern, green = ahead
+  const arcPath = (r, a1, a2)=>{
+    const p1 = {x:TCX+r*Math.sin(a1*Math.PI/180), y:TCY-r*Math.cos(a1*Math.PI/180)};
+    const p2 = {x:TCX+r*Math.sin(a2*Math.PI/180), y:TCY-r*Math.cos(a2*Math.PI/180)};
+    return `M ${p1.x} ${p1.y} A ${r} ${r} 0 0 1 ${p2.x} ${p2.y}`;
+  };
+  telegraphFace.appendChild(svgEl('path',{d:arcPath(91,-90,-12),fill:'none',stroke:'#9b3a2e','stroke-width':3,opacity:0.75}));
+  telegraphFace.appendChild(svgEl('path',{d:arcPath(91,12,90),fill:'none',stroke:'#3f7a55','stroke-width':3,opacity:0.75}));
+
+  TELEGRAPH_STEPS.forEach((step)=>{
+    const a = step.angle*Math.PI/180;
+    const tickOuter = TCX+88*Math.sin(a), tickOuterY = TCY-88*Math.cos(a);
+    const tickInner = TCX+76*Math.sin(a), tickInnerY = TCY-76*Math.cos(a);
+
+    const g = svgEl('g',{class:'telegraph-tick'});
+    g.appendChild(svgEl('line',{x1:tickInner, y1:tickInnerY, x2:tickOuter, y2:tickOuterY, stroke:'#e6bd7d', 'stroke-width':2}));
+
+    const hitX = TCX+64*Math.sin(a), hitY = TCY-64*Math.cos(a);
+    g.appendChild(svgEl('circle',{cx:hitX, cy:hitY, r:20, fill:'rgba(255,255,255,0.001)'}));
+
+    const labelR = 60;
+    const lx = TCX+labelR*Math.sin(a), ly = TCY-labelR*Math.cos(a);
+    const textRot = step.angle>=0 ? step.angle-90 : step.angle+90; // read along the spoke
+    const isStop = step.speed===0;
+    const text = svgEl('text',{
+      x:lx, y:ly, 'text-anchor':'middle', 'dominant-baseline':'central',
+      fill: isStop ? '#f2ead8' : (step.speed<0 ? '#f0b7a8' : '#bfe3c9'),
+      'font-family':"'Space Mono', monospace",
+      'font-size': isStop ? 10.5 : 9.5, 'font-weight':700, 'letter-spacing':'0.5',
+      transform:`rotate(${textRot} ${lx} ${ly})`
+    });
+    text.textContent = step.label.split(' ')[0];
+    g.appendChild(text);
+    g.addEventListener('click', ()=> setTelegraph(step));
+    telegraphFace.appendChild(g);
+  });
+
+  const aheadLbl = svgEl('text',{x:TCX+36, y:TCY+20, 'text-anchor':'middle','font-family':"'Cinzel', serif",'font-size':8.5, 'font-weight':700, fill:'#7fae8c', 'letter-spacing':'2'});
+  aheadLbl.textContent = 'AHEAD';
+  telegraphFace.appendChild(aheadLbl);
+  const asternLbl = svgEl('text',{x:TCX-36, y:TCY+20, 'text-anchor':'middle','font-family':"'Cinzel', serif",'font-size':8.5, 'font-weight':700, fill:'#c08070', 'letter-spacing':'2'});
+  asternLbl.textContent = 'ASTERN';
+  telegraphFace.appendChild(asternLbl);
+
+  const plate1 = svgEl('text',{x:TCX,y:TCY+40,'text-anchor':'middle','font-family':"'Cinzel', serif",'font-size':8,fill:'#7d8a90','letter-spacing':'1.5'});
+  plate1.textContent = 'ENGINE ORDER TELEGRAPH';
+  telegraphFace.appendChild(plate1);
+
+  needleResponse = svgEl('g',{});
+  needleResponse.appendChild(svgEl('line',{x1:TCX,y1:TCY,x2:TCX,y2:TCY-118,stroke:'#5c6b74','stroke-width':5,'stroke-linecap':'round'}));
+  needleResponse.appendChild(svgEl('rect',{x:TCX-9,y:TCY-128,width:18,height:14,rx:3,fill:'#333d43',stroke:'#6a7f8c','stroke-width':1.5}));
+  telegraphFace.appendChild(needleResponse);
+
+  needleOrder = svgEl('g',{});
+  needleOrder.appendChild(svgEl('line',{x1:TCX,y1:TCY,x2:TCX,y2:TCY-122,stroke:'#e6bd7d','stroke-width':6,'stroke-linecap':'round'}));
+  needleOrder.appendChild(svgEl('line',{x1:TCX,y1:TCY,x2:TCX,y2:TCY-122,stroke:'#8a5a2a','stroke-width':2,'stroke-linecap':'round'}));
+  const grip = svgEl('g',{transform:`translate(${TCX} ${TCY-132})`});
+  grip.appendChild(svgEl('rect',{x:-16,y:-9,width:32,height:18,rx:4,fill:'#241708',stroke:'#e6bd7d','stroke-width':1.5}));
+  grip.appendChild(svgEl('rect',{x:-11,y:-4,width:22,height:8,rx:2,fill:'#3a2a15'}));
+  needleOrder.appendChild(grip);
+  telegraphFace.appendChild(needleOrder);
+
+  telegraphFace.appendChild(svgEl('circle',{cx:TCX,cy:TCY,r:11,fill:'#2a3947',stroke:'#e6bd7d','stroke-width':2}));
+  telegraphFace.appendChild(svgEl('circle',{cx:TCX,cy:TCY,r:4,fill:'#e6bd7d'}));
+
+  telegraphFace.appendChild(svgEl('rect',{x:TCX-16,y:TCY+100,width:32,height:44,fill:'url(#bezelGrad)',stroke:'#3a2a15','stroke-width':1.5}));
+  telegraphFace.appendChild(svgEl('ellipse',{cx:TCX,cy:TCY+146,rx:34,ry:8,fill:'url(#bezelGrad)',stroke:'#3a2a15','stroke-width':1.5}));
+}
+buildTelegraphFace();
+
+function setLeverAngle(el, angleDeg){
+  const t = `rotate(${(+angleDeg).toFixed(1)} ${TCX} ${TCY})`;
+  if(el.getAttribute('transform') !== t) el.setAttribute('transform', t);
+}
+function setText(el, v){ if(el.textContent !== v) el.textContent = v; }
+
+// ===================== Compass card =====================
+function buildCompass(){
+  const C = 100;
+  const pt = (deg, r)=>{ const a = deg*Math.PI/180; return {x:C+r*Math.sin(a), y:C-r*Math.cos(a)}; };
+
+  // Compass rose (behind the markings)
+  const rose = svgEl('g',{opacity:'0.75'});
+  function rosePoint(deg, len, wid, light, dark){
+    const tip = pt(deg, len), l = pt(deg-90, wid), r = pt(deg+90, wid);
+    rose.appendChild(svgEl('polygon',{points:`${C},${C} ${l.x},${l.y} ${tip.x},${tip.y}`, fill:light}));
+    rose.appendChild(svgEl('polygon',{points:`${C},${C} ${tip.x},${tip.y} ${r.x},${r.y}`, fill:dark}));
+  }
+  [45,135,225,315].forEach(d=>rosePoint(d, 32, 6, '#dccfae', '#a8956d'));
+  [0,90,180,270].forEach(d=>rosePoint(d, 46, 8, '#c9b78f', '#8a7452'));
+  rose.appendChild(svgEl('circle',{cx:C,cy:C,r:20,fill:'none',stroke:'#8a7452','stroke-width':0.6}));
+  compassCard.appendChild(rose);
+
+  // Outer degree ring
+  compassCard.appendChild(svgEl('circle',{cx:C,cy:C,r:79,fill:'none',stroke:'#2a2016','stroke-width':0.8}));
+  compassCard.appendChild(svgEl('circle',{cx:C,cy:C,r:64,fill:'none',stroke:'#2a2016','stroke-width':0.5,opacity:'0.6'}));
+
+  for(let d=0; d<360; d+=5){
+    const major = d%30===0, mid = d%10===0;
+    const p1 = pt(d, 79), p2 = pt(d, major?68: mid?72:75);
+    compassCard.appendChild(svgEl('line',{x1:p1.x,y1:p1.y,x2:p2.x,y2:p2.y,stroke:'#2a2016','stroke-width':major?1.6:mid?1.0:0.6}));
+  }
+
+  const cardinals = {0:'N',90:'E',180:'S',270:'W'};
+  for(let d=0; d<360; d+=30){
+    if(cardinals[d]){
+      const p = pt(d, 55);
+      const t = svgEl('text',{x:p.x,y:p.y,'text-anchor':'middle','dominant-baseline':'central',
+        'font-family':"'Cinzel', serif",'font-weight':700,'font-size':d===0?17:14,
+        fill:d===0?'#a8291f':'#1d1710',transform:`rotate(${d} ${p.x} ${p.y})`});
+      t.textContent = cardinals[d];
+      compassCard.appendChild(t);
+    } else {
+      const p = pt(d, 59);
+      const t = svgEl('text',{x:p.x,y:p.y,'text-anchor':'middle','dominant-baseline':'central',
+        'font-family':"'Space Mono', monospace",'font-weight':700,'font-size':7.5,
+        fill:'#3a2c1c',transform:`rotate(${d} ${p.x} ${p.y})`});
+      t.textContent = String(d);
+      compassCard.appendChild(t);
+    }
+  }
+  [['NE',45],['SE',135],['SW',225],['NW',315]].forEach(([lbl,d])=>{
+    const p = pt(d, 42);
+    const t = svgEl('text',{x:p.x,y:p.y,'text-anchor':'middle','dominant-baseline':'central',
+      'font-family':"'Cinzel', serif",'font-weight':600,'font-size':7,
+      fill:'#4a3a26',transform:`rotate(${d} ${p.x} ${p.y})`});
+    t.textContent = lbl;
+    compassCard.appendChild(t);
+  });
+}
+buildCompass();
+
+const POINTS16 = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'];
+const POINT_NAMES = {N:'NORTH',S:'SOUTH',E:'EAST',W:'WEST'};
+function cardinalName(h){
+  const p = POINTS16[Math.round(((h%360)+360)%360/22.5)%16];
+  return POINT_NAMES[p] || p;
+}
+
+let compassAngle = 0, compassVel = 0;
+function updateCompass(dt){
+  const target = (state.phase==='intro' ? 0 : state.heading) + Math.sin(animT*1.7)*0.5 + Math.sin(animT*0.63)*0.4;
+  const diff = normDeg(target - compassAngle);
+  compassVel += (diff*28 - compassVel*6.5)*dt;
+  compassAngle = (compassAngle + compassVel*dt + 360) % 360;
+  const ct = `rotate(${compassAngle.toFixed(1)} 100 100)`;
+  if(compassNeedle.getAttribute('transform') !== ct) compassNeedle.setAttribute('transform', ct);
+}
+
+// ===================== Game state =====================
+let state = {
+  phase: 'intro',
+  shipX: 0, shipY: ICEBERG_START_DIST,
+  heading: 0,
+  speed: 0,
+  rudderTarget: 0, rudderActual: 0,
+  wheelRotation: 0,
+  telegraphTarget: TELEGRAPH_STEPS[6],
+  icebergX: 0, icebergY: 0, icebergDriftVx: 0,
+  icebergPoints: [],
+  currentDrift: 0,
+  elapsed: 0,
+  minClearance: Infinity,
+  outcome: null,
+  shakeT: 0,
+};
+
+let lastTime = null;
+let animT = 0;     // always-running visual clock
+let seaPhase = 0;  // how far the sea has scrolled past
+
+function randRange(a,b){ return a + Math.random()*(b-a); }
+function hash(n){ const s = Math.sin(n)*43758.5453; return s - Math.floor(s); }
+function normDeg(d){ d = d%360; if(d>180) d-=360; if(d<-180) d+=360; return d; }
+
+function genIceberg(){
+  const pts = [];
+  const n = 9;
+  for(let i=0;i<n;i++){
+    pts.push({a:(i/n)*Math.PI*2, r:ICE_RADIUS*randRange(0.72, 1.15)});
+  }
+  return pts;
+}
+
+// ===================== Night sky =====================
+const STAR_COLORS = ['255,255,255','255,255,255','205,222,255','190,208,255','255,240,215','255,222,185'];
+function makeStarSprite(r, color, spikes){
+  const S = 2;
+  const half = Math.ceil(r*(spikes?7.5:4.5))+2;
+  const c = document.createElement('canvas');
+  c.width = c.height = half*2*S;
+  const g = c.getContext('2d');
+  g.scale(S,S);
+  const m = half;
+  const glow = g.createRadialGradient(m,m,0,m,m,r*4);
+  glow.addColorStop(0,`rgba(${color},0.95)`);
+  glow.addColorStop(0.22,`rgba(${color},0.38)`);
+  glow.addColorStop(1,`rgba(${color},0)`);
+  g.fillStyle = glow;
+  g.beginPath(); g.arc(m,m,r*4,0,Math.PI*2); g.fill();
+  if(spikes){
+    const spike = (dx,dy,L,alpha,width)=>{
+      const lg = g.createLinearGradient(m-dx*L,m-dy*L,m+dx*L,m+dy*L);
+      lg.addColorStop(0,`rgba(${color},0)`);
+      lg.addColorStop(0.5,`rgba(${color},${alpha})`);
+      lg.addColorStop(1,`rgba(${color},0)`);
+      g.strokeStyle = lg; g.lineWidth = width;
+      g.beginPath(); g.moveTo(m-dx*L,m-dy*L); g.lineTo(m+dx*L,m+dy*L); g.stroke();
+    };
+    spike(1,0,r*7,0.85,Math.max(0.5,r*0.32));
+    spike(0,1,r*7,0.85,Math.max(0.5,r*0.32));
+    spike(0.707,0.707,r*3.2,0.35,Math.max(0.4,r*0.2));
+    spike(0.707,-0.707,r*3.2,0.35,Math.max(0.4,r*0.2));
+  }
+  g.fillStyle = 'rgba(255,255,255,0.97)';
+  g.beginPath(); g.arc(m,m,Math.max(0.45,r*0.55),0,Math.PI*2); g.fill();
+  return {canvas:c, size:half*2};
+}
+
+const stars = [];
+for(let i=0;i<190;i++){
+  const r = 0.35 + Math.pow(Math.random(),3.2)*1.9;
+  const color = STAR_COLORS[Math.floor(Math.random()*STAR_COLORS.length)];
+  stars.push({
+    bearing: Math.random()*360,
+    elev: 0.02 + Math.random()*0.62,
+    sprite: makeStarSprite(r, color, r>1.15),
+    tw: Math.random()*Math.PI*2,
+    sp: 1.2 + Math.random()*3.2
+  });
+}
+const dust = [];
+for(let i=0;i<460;i++){
+  dust.push({
+    bearing: Math.random()*360,
+    elev: Math.random()*0.66,
+    s: Math.random()<0.8 ? 0.8 : 1.3,
+    a: 0.12 + Math.random()*0.35
+  });
+}
+const moonBearing = randRange(-40,40) + 30;
+
+// ===================== Reset / game flow =====================
+function resetState(){
+  state.phase = 'playing';
+  state.shipX = 0;
+  state.shipY = ICEBERG_START_DIST;
+  state.heading = 0;
+  state.speed = 22;
+  state.rudderTarget = 0;
+  state.rudderActual = 0;
+  state.wheelRotation = 0;
+  state.telegraphTarget = TELEGRAPH_STEPS[6];
+  state.icebergX = randRange(-14,14);
+  state.icebergY = 0;
+  state.icebergDriftVx = randRange(-1.0,1.0);
+  state.icebergPoints = genIceberg();
+  state.currentDrift = randRange(-0.55,0.55);
+  // Begin at 11:39:06: the ship has already run on at full speed for 6 seconds
+  state.elapsed = START_OFFSET_SECS;
+  state.shipY = ICEBERG_START_DIST - state.speed*PX_PER_KNOT_SEC*START_OFFSET_SECS;
+  state.shipX = state.currentDrift*START_OFFSET_SECS;
+  state.icebergX += state.icebergDriftVx*START_OFFSET_SECS;
+  state.minClearance = Infinity;
+  state.outcome = null;
+  state.shakeT = 0;
+  lastTime = null;
+
+  updateTelegraphUI();
+  updateWheelUI();
+  updateHUD();
+  showAlarm();
+}
+
+function goToIntro(){
+  clearReturnCountdown();
+  endOverlay.hidden = true;
+  state.phase = 'intro';
+  state.shipX = 0;
+  state.shipY = ICEBERG_START_DIST;
+  state.heading = 0;
+  state.speed = 0;
+  state.rudderTarget = 0;
+  state.rudderActual = 0;
+  state.wheelRotation = 0;
+  state.telegraphTarget = TELEGRAPH_STEPS[6];
+  state.icebergPoints = [];
+  state.elapsed = 0;
+  state.shakeT = 0;
+  updateTelegraphUI();
+  setLeverAngle(needleResponse, TELEGRAPH_STEPS[6].angle);
+  updateWheelUI();
+  clockDisplay.textContent = '11:39:06 PM';
+  headingValEl.textContent = '000°';
+  headingCardEl.textContent = 'NORTH';
+  speedValEl.textContent = '0.0';
+  speedDirEl.textContent = 'KNOTS';
+  hudStatus.textContent = 'STEADY — HOLDING COURSE';
+  alarmBanner.classList.add('hidden');
+  introOverlay.hidden = false;
+}
+
+function startGame(){
+  if(typeof perfDecided!=='undefined' && qualitySetting==='auto' && !LOWQ){ perfTime=0; perfFrames=0; perfDecided=false; }
+  resetState();
+  playBell();
+}
+
+function showAlarm(){
+  alarmBanner.classList.remove('hidden');
+  clearTimeout(showAlarm._t);
+  showAlarm._t = setTimeout(()=>alarmBanner.classList.add('hidden'), 3800);
+}
+
+// ===================== Intro video =====================
+let videoDone = true, videoErrShown = false, videoErrInterval = null;
+
+function playIntroVideo(){
+  videoDone = false;
+  videoErrShown = false;
+  videoOverlay.hidden = false;
+  videoError.hidden = true;
+  introVideo.hidden = false;
+  videoSkip.hidden = false;
+
+  const path = INTRO_VIDEO_PATH.trim();
+  if(!path){ showVideoError(); return; }
+
+  introVideo.muted = false;
+  introVideo.src = path;
+  introVideo.load();
+  const p = introVideo.play();
+  if(p && p.catch){
+    p.catch(err=>{
+      if(videoDone || videoErrShown) return;
+      if(err && err.name==='NotAllowedError'){
+        // Browser blocked sound — play muted instead
+        introVideo.muted = true;
+        introVideo.play().catch(()=>showVideoError());
+      } else if(err && err.name==='AbortError'){
+        // load was interrupted; the 'error' event will report a real problem
+      } else {
+        showVideoError();
+      }
+    });
+  }
+}
+
+function showVideoError(){
+  if(videoDone || videoErrShown) return;
+  videoErrShown = true;
+  try{ introVideo.pause(); }catch(e){}
+  introVideo.hidden = true;
+  videoSkip.hidden = true;
+  videoError.hidden = false;
+  let left = VIDEO_ERROR_WAIT_SECS;
+  videoCountdownEl.textContent = left;
+  clearInterval(videoErrInterval);
+  videoErrInterval = setInterval(()=>{
+    left--;
+    if(left<=0){ finishVideo(); }
+    else videoCountdownEl.textContent = left;
+  }, 1000);
+}
+
+function finishVideo(){
+  if(videoDone) return;
+  videoDone = true;
+  clearInterval(videoErrInterval);
+  videoErrInterval = null;
+  try{ introVideo.pause(); }catch(e){}
+  introVideo.removeAttribute('src');
+  try{ introVideo.load(); }catch(e){}
+  videoOverlay.hidden = true;
+  startGame();
+}
+
+introVideo.addEventListener('ended', finishVideo);
+introVideo.addEventListener('error', ()=>{ if(!videoDone) showVideoError(); });
+videoSkip.addEventListener('click', finishVideo);
+
+// ===================== Return-to-menu countdown =====================
+let returnInterval = null;
+function startReturnCountdown(){
+  clearReturnCountdown();
+  let left = RETURN_TO_MENU_SECS;
+  endCountdown.textContent = `RETURNING TO THE MAIN SCREEN IN ${left}s`;
+  returnInterval = setInterval(()=>{
+    left--;
+    if(left<=0) goToIntro();
+    else endCountdown.textContent = `RETURNING TO THE MAIN SCREEN IN ${left}s`;
+  }, 1000);
+}
+function clearReturnCountdown(){
+  clearInterval(returnInterval);
+  returnInterval = null;
+  endCountdown.textContent = '';
+}
+
+// ===================== Audio (synth, no assets) =====================
+let actx = null;
+function ac(){
+  if(!actx){
+    try{ actx = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){ actx=null; }
+  }
+  if(actx && actx.state==='suspended'){ actx.resume().catch(()=>{}); }
+  return actx;
+}
+function beep(freq, dur, type, gain){
+  const c = ac(); if(!c) return;
+  const osc = c.createOscillator();
+  const g = c.createGain();
+  osc.type = type||'triangle';
+  osc.frequency.value = freq;
+  g.gain.value = 0;
+  osc.connect(g); g.connect(c.destination);
+  const now = c.currentTime;
+  g.gain.linearRampToValueAtTime(gain||0.12, now+0.02);
+  g.gain.exponentialRampToValueAtTime(0.001, now+dur);
+  osc.start(now);
+  osc.stop(now+dur+0.05);
+}
+function playBell(){ [0,0.28,0.56].forEach((t)=> setTimeout(()=>beep(1100,0.35,'sine',0.1), t*1000)); }
+function playClick(){ beep(520,0.08,'square',0.06); }
+function playImpact(){
+  beep(90,0.9,'sawtooth',0.18);
+  setTimeout(()=>beep(60,0.7,'sawtooth',0.12), 90);
+}
+function playChime(){
+  [660,880,1100].forEach((f,i)=> setTimeout(()=>beep(f,0.5,'sine',0.09), i*140));
+}
+
+// ===================== Input: wheel =====================
+function angleFromCenter(mount, clientX, clientY){
+  const rect = mount.getBoundingClientRect();
+  const cx = rect.left + rect.width/2, cy = rect.top + rect.height/2;
+  return Math.atan2(clientX - cx, -(clientY - cy)) * 180/Math.PI;
+}
+
+const WHEEL_LIMIT = 105;   // wheel turns +/-105 deg = rudder +/-35 deg
+function setWheel(rot){
+  rot = Math.max(-WHEEL_LIMIT, Math.min(WHEEL_LIMIT, rot));
+  state.wheelRotation = rot;
+  state.rudderTarget = Math.max(-MAX_RUDDER, Math.min(MAX_RUDDER, rot/3));
+}
+
+// Grab the rim anywhere and it turns with your finger (relative, never jumps).
+// Touching near the hub or elsewhere on the panel switches to a left/right swipe.
+const wheelPanel = wheelMount.closest('.wheel-panel');
+let wheelDrag = null;
+wheelPanel.addEventListener('pointerdown', (e)=>{
+  if(state.phase!=='playing' || wheelDrag) return;
+  if(e.target.closest('button')) return;
+  const rect = wheelMount.getBoundingClientRect();
+  const R = rect.width/2;
+  const dist = Math.hypot(e.clientX-(rect.left+R), e.clientY-(rect.top+rect.height/2));
+  if(dist > R*0.3 && dist < R*1.2){
+    wheelDrag = {id:e.pointerId, mode:'rotate', last:angleFromCenter(wheelMount, e.clientX, e.clientY)};
+  } else {
+    wheelDrag = {id:e.pointerId, mode:'swipe', lastX:e.clientX, perPx: (WHEEL_LIMIT*2)/(rect.width*1.1)};
+  }
+  try{ wheelPanel.setPointerCapture(e.pointerId); }catch(err){}
+  e.preventDefault();
+});
+wheelPanel.addEventListener('pointermove', (e)=>{
+  if(!wheelDrag || e.pointerId!==wheelDrag.id || state.phase!=='playing') return;
+  if(wheelDrag.mode==='rotate'){
+    const a = angleFromCenter(wheelMount, e.clientX, e.clientY);
+    const d = normDeg(a - wheelDrag.last);
+    wheelDrag.last = a;
+    setWheel(state.wheelRotation + d);
+  } else {
+    const dx = e.clientX - wheelDrag.lastX;
+    wheelDrag.lastX = e.clientX;
+    setWheel(state.wheelRotation + dx*wheelDrag.perPx);
+  }
+});
+function endWheelDrag(e){ if(wheelDrag && e.pointerId===wheelDrag.id) wheelDrag = null; }
+wheelPanel.addEventListener('pointerup', endWheelDrag);
+wheelPanel.addEventListener('pointercancel', endWheelDrag);
+wheelPanel.addEventListener('lostpointercapture', endWheelDrag);
+
+document.querySelectorAll('[data-quick]').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    if(state.phase!=='playing') return;
+    setWheel(parseFloat(btn.dataset.quick)*3);
+    playClick();
+  });
+});
+
+const keysHeld = {left:false, right:false};
+const WHEEL_KEY_SPEED = 150;   // wheel degrees per second while a key is held
+window.addEventListener('keydown', (e)=>{
+  if(e.code==='ArrowLeft'||e.code==='KeyA'){ keysHeld.left = true; e.preventDefault(); }
+  else if(e.code==='ArrowRight'||e.code==='KeyD'){ keysHeld.right = true; e.preventDefault(); }
+  else if(e.repeat || state.phase!=='playing'){ return; }
+  else if(e.code==='ArrowUp'||e.code==='KeyW'){ bumpTelegraph(1); e.preventDefault(); }
+  else if(e.code==='ArrowDown'||e.code==='KeyS'){ bumpTelegraph(-1); e.preventDefault(); }
+});
+window.addEventListener('keyup', (e)=>{
+  if(e.code==='ArrowLeft'||e.code==='KeyA') keysHeld.left = false;
+  else if(e.code==='ArrowRight'||e.code==='KeyD') keysHeld.right = false;
+});
+window.addEventListener('blur', ()=>{ keysHeld.left = keysHeld.right = false; });
+
+function bumpTelegraph(dir){
+  const idx = TELEGRAPH_STEPS.indexOf(state.telegraphTarget);
+  setTelegraph(TELEGRAPH_STEPS[Math.max(0, Math.min(TELEGRAPH_STEPS.length-1, idx+dir))]);
+}
+
+function nearestStep(angle){
+  let best = TELEGRAPH_STEPS[0], bestD = Infinity;
+  TELEGRAPH_STEPS.forEach(s=>{
+    const d = Math.abs(s.angle-angle);
+    if(d<bestD){ bestD=d; best=s; }
+  });
+  return best;
+}
+
+// ===================== Input: telegraph lever =====================
+let telegraphDragging = false;
+telegraphMount.addEventListener('pointerdown', (e)=>{
+  if(state.phase!=='playing') return;
+  telegraphDragging = true;
+  telegraphMount.setPointerCapture(e.pointerId);
+  handleTelegraphDrag(e);
+});
+telegraphMount.addEventListener('pointermove', (e)=>{
+  if(!telegraphDragging || state.phase!=='playing') return;
+  handleTelegraphDrag(e);
+});
+telegraphMount.addEventListener('pointerup', ()=>{ telegraphDragging=false; });
+telegraphMount.addEventListener('pointercancel', ()=>{ telegraphDragging=false; });
+
+function handleTelegraphDrag(e){
+  let a = angleFromCenter(telegraphMount, e.clientX, e.clientY);
+  a = Math.max(-90, Math.min(90, a));
+  const step = nearestStep(a);
+  if(step !== state.telegraphTarget) setTelegraph(step);
+}
+
+function setTelegraph(step){
+  if(state.phase!=='playing') return;
+  if(state.telegraphTarget !== step){
+    state.telegraphTarget = step;
+    updateTelegraphUI();
+    playClick();
+  }
+}
+
+// ===================== Time =====================
+function tsString(){
+  const total = 23*3600 + 39*60 + Math.floor(state.elapsed);
+  const h = Math.floor(total/3600)%24;
+  const m = Math.floor((total%3600)/60);
+  const s = total%60;
+  const ampm = h>=12 ? 'PM' : 'AM';
+  let h12 = h%12; if(h12===0) h12=12;
+  return `${String(h12).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')} ${ampm}`;
+}
+
+// ===================== Geometry helpers =====================
+function relativeToShip(dx, dy, headingDeg){
+  const h = headingDeg*Math.PI/180;
+  return {
+    forward: dx*Math.sin(h) - dy*Math.cos(h),
+    lateral: dx*Math.cos(h) + dy*Math.sin(h)
+  };
+}
+
+function speedToAngle(speed){
+  const bp = TELEGRAPH_STEPS;
+  if(speed<=bp[0].speed) return bp[0].angle;
+  if(speed>=bp[bp.length-1].speed) return bp[bp.length-1].angle;
+  for(let i=0;i<bp.length-1;i++){
+    if(speed>=bp[i].speed && speed<=bp[i+1].speed){
+      const t = (speed-bp[i].speed)/(bp[i+1].speed-bp[i].speed);
+      return bp[i].angle + t*(bp[i+1].angle-bp[i].angle);
+    }
+  }
+  return 0;
+}
+
+// ===================== Update =====================
+function update(dt){
+  const rDelta = state.rudderTarget - state.rudderActual;
+  state.rudderActual += Math.max(-MAX_RUDDER_RATE*dt, Math.min(MAX_RUDDER_RATE*dt, rDelta));
+
+  const targetSpeed = state.telegraphTarget.speed;
+  const accel = (targetSpeed > state.speed) ? 0.9 : 1.6;
+  const sDelta = targetSpeed - state.speed;
+  state.speed += Math.max(-accel*dt, Math.min(accel*dt, sDelta));
+
+  const speedFactor = Math.max(0.3, Math.min(1.3, Math.abs(state.speed)/12));
+  const asternActive = targetSpeed < 0;
+  const turnRate = state.rudderActual * TURN_COEF * speedFactor * (asternActive?ASTERN_TURN_MULT:1);
+  state.heading = (state.heading + turnRate*dt + 360) % 360;
+
+  const rad = state.heading*Math.PI/180;
+  state.shipX += state.speed * Math.sin(rad) * PX_PER_KNOT_SEC * dt;
+  state.shipY -= state.speed * Math.cos(rad) * PX_PER_KNOT_SEC * dt;
+  state.shipX += state.currentDrift * dt;
+
+  state.icebergX += state.icebergDriftVx*dt;
+  state.elapsed += dt;
+
+  const dx = state.icebergX-state.shipX, dy = state.icebergY-state.shipY;
+  const dist = Math.hypot(dx,dy);
+  const {forward} = relativeToShip(dx,dy,state.heading);
+  state.minClearance = Math.min(state.minClearance, dist - ICE_RADIUS - SHIP_RADIUS);
+
+  if(dist <= ICE_RADIUS+SHIP_RADIUS){ handleCollision(); return; }
+  if(forward < -(SHIP_RADIUS+ICE_RADIUS+PASSED_BUFFER)){ handleSurvived(); return; }
+  if(state.elapsed > SAFETY_TIMEOUT){
+    if(state.minClearance>0) handleSurvived(); else handleCollision();
+    return;
+  }
+
+  updateHUD();
+}
+
+function computeSeverity(){
+  const rad = state.heading*Math.PI/180;
+  const fwd = {x:Math.sin(rad), y:-Math.cos(rad)};
+  const toIce = {x: state.icebergX-state.shipX, y: state.icebergY-state.shipY};
+  const cross = toIce.x*fwd.y - toIce.y*fwd.x;
+  const offsetRatio = Math.max(0, Math.min(1, Math.abs(cross)/ICE_RADIUS));
+  const speedFactor = Math.max(0.3, Math.min(1.2, Math.abs(state.speed)/22));
+  return {severity: Math.max(0, Math.min(1, (1-offsetRatio)*speedFactor)), side: cross<0 ? 'PORT' : 'STARBOARD'};
+}
+
+function handleCollision(){
+  state.phase = 'ended';
+  const {severity, side} = computeSeverity();
+  playImpact();
+  state.shakeT = 0.5;
+  screenFlash.classList.remove('go'); void screenFlash.offsetWidth; screenFlash.classList.add('go');
+  state.outcome = {type:'collision', severity, side};
+  setTimeout(()=>showEndOverlay(), 750);
+}
+
+function handleSurvived(){
+  state.phase = 'ended';
+  playChime();
+  state.outcome = {type:'survived'};
+  setTimeout(()=>showEndOverlay(), 500);
+}
+
+// ===================== Render: sky =====================
+function drawSky(w, h, horizonY, scaleF, heading){
+  const skyGrad = ctx.createLinearGradient(0,-80,0,horizonY);
+  skyGrad.addColorStop(0,'#02050b');
+  skyGrad.addColorStop(0.65,'#071120');
+  skyGrad.addColorStop(1,'#11202f');
+  ctx.fillStyle = skyGrad;
+  ctx.fillRect(-100,-100,w+200,horizonY+100);
+
+  const skyH = horizonY*1.55;
+
+  // faint background star dust
+  ctx.fillStyle = 'rgb(205,218,238)';
+  if(!LOWQ) for(const d of dust){
+    const rel = normDeg(d.bearing - heading);
+    if(Math.abs(rel) > FOV_DEG*0.62) continue;
+    const sx = w/2 + (rel/FOV_DEG)*w;
+    const sy = horizonY - d.elev*skyH - 4;
+    ctx.globalAlpha = d.a*Math.min(1,d.elev*10);
+    ctx.fillRect(sx, sy, d.s, d.s);
+  }
+
+  ctx.globalAlpha = 1;
+
+  // proper stars: glow + diffraction spikes + twinkle
+  for(let si=0; si<stars.length; si += LOWQ ? 2 : 1){
+    const s = stars[si];
+    const rel = normDeg(s.bearing - heading);
+    if(Math.abs(rel) > FOV_DEG*0.62) continue;
+    const sx = w/2 + (rel/FOV_DEG)*w;
+    const sy = horizonY - s.elev*skyH - 6;
+    const twinkle = 0.62 + 0.38*Math.sin(animT*s.sp + s.tw);
+    const extinction = Math.min(1, s.elev*7 + 0.15);
+    const size = s.sprite.size * scaleF;
+    ctx.globalAlpha = Math.max(0, twinkle*extinction);
+    ctx.drawImage(s.sprite.canvas, sx-size/2, sy-size/2, size, size);
+  }
+  ctx.globalAlpha = 1;
+
+  // horizon haze
+  const haze = ctx.createLinearGradient(0,horizonY-40*scaleF,0,horizonY+4);
+  haze.addColorStop(0,'rgba(60,90,110,0)');
+  haze.addColorStop(1,'rgba(60,90,110,0.18)');
+  ctx.fillStyle = haze;
+  ctx.fillRect(-100,horizonY-40*scaleF,w+200,40*scaleF+4);
+
+  // moon
+  const rel = normDeg(moonBearing - heading);
+  if(Math.abs(rel) < FOV_DEG*0.7){
+    const mx = w/2+(rel/FOV_DEG)*w, my = horizonY*0.32;
+    const mr = 55*scaleF;
+    const mg = ctx.createRadialGradient(mx,my,2,mx,my,mr);
+    mg.addColorStop(0,'rgba(230,225,210,0.45)');
+    mg.addColorStop(1,'rgba(230,225,210,0)');
+    ctx.fillStyle = mg; ctx.beginPath(); ctx.arc(mx,my,mr,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#ece7d9'; ctx.beginPath(); ctx.arc(mx,my,9*scaleF,0,Math.PI*2); ctx.fill();
+    return mx;
+  }
+  return null;
+}
+
+// ===================== Render: sea =====================
+function drawSea(w, h, horizonY, scaleF, heading, moonX){
+  const seaH = h - horizonY;
+  const seaGrad = ctx.createLinearGradient(0,horizonY,0,h);
+  seaGrad.addColorStop(0,'#13222f');
+  seaGrad.addColorStop(0.08,'#0b1824');
+  seaGrad.addColorStop(0.5,'#06111b');
+  seaGrad.addColorStop(1,'#02060b');
+  ctx.fillStyle = seaGrad;
+  ctx.fillRect(-100,horizonY,w+200,seaH+100);
+
+  // soft moon path on the water
+  if(moonX!==null){
+    ctx.save();
+    ctx.translate(moonX, horizonY);
+    ctx.scale(1, 4.2);
+    const pg = ctx.createRadialGradient(0,0,0,0,0,w*0.11);
+    pg.addColorStop(0,'rgba(200,205,200,0.16)');
+    pg.addColorStop(1,'rgba(200,205,200,0)');
+    ctx.fillStyle = pg;
+    ctx.beginPath(); ctx.arc(0,0,w*0.11,0,Math.PI*2); ctx.fill();
+    ctx.restore();
+  }
+
+  // swell rows, rolling toward the ship in perspective
+  const ROWS = LOWQ ? 24 : 44;
+  const cyc = seaPhase/16;
+  const base = Math.floor(cyc);
+  const frac = cyc - base;
+  const hShift = (heading/FOV_DEG)*w;
+
+  for(let i=0;i<ROWS;i++){
+    const t = (i+frac)/ROWS;
+    const y = horizonY + Math.pow(t,2.25)*seaH*1.08;
+    if(y > h+30) continue;
+    const id = i - base;
+    const seed = hash(id*3.17)*20;
+    const amp = (0.3 + t*t*9)*scaleF;
+    const wl = (16 + t*t*250)*scaleF;
+    const stepX = 7 + t*18;
+    const fade = Math.min(1, t*7);
+
+    ctx.beginPath();
+    for(let x=-40; x<=w+40; x+=stepX){
+      const xw = x + hShift;
+      const yy = y + amp*(
+        Math.sin(xw/wl*6.2832 + seed + animT*0.8)*0.62 +
+        Math.sin(xw/(wl*0.47)*6.2832 - seed*1.7 - animT*1.3)*0.38
+      );
+      if(x===-40) ctx.moveTo(x,yy); else ctx.lineTo(x,yy);
+    }
+    // trough shadow
+    ctx.save();
+    ctx.translate(0, amp*0.9 + 1);
+    ctx.strokeStyle = `rgba(0,3,8,${(0.45*fade).toFixed(3)})`;
+    ctx.lineWidth = (0.8 + t*3.2)*scaleF;
+    ctx.stroke();
+    ctx.restore();
+    // crest catching the light
+    ctx.strokeStyle = `rgba(105,145,168,${((0.05+0.2*t)*fade).toFixed(3)})`;
+    ctx.lineWidth = (0.5 + t*1.4)*scaleF;
+    ctx.stroke();
+
+    // glints: moon path + scattered starlight
+    if(moonX!==null){
+      for(let g=0; g<3; g++){
+        const hv = hash(id*12.9898 + g*78.233);
+        const gx = moonX + (hv-0.5)*(14 + t*w*0.22) - 0;
+        const flick = 0.5 + 0.5*Math.sin(animT*(2.2+hv*3.5) + id*1.3 + g);
+        if(flick < 0.5) continue;
+        const gw = (2 + t*18)*scaleF*flick;
+        ctx.fillStyle = `rgba(232,228,210,${(0.55*flick*fade*(1-t*0.35)).toFixed(3)})`;
+        ctx.fillRect(gx-gw/2, y-amp*0.5, gw, Math.max(0.6,(0.6+t*1.6)*scaleF));
+      }
+    }
+    const hv2 = hash(id*4.123 + 9.1);
+    const flick2 = 0.5 + 0.5*Math.sin(animT*(1.5+hv2*2) + id);
+    if(flick2 > 0.8){
+      const gx = ((hv2*w*1.6 - hShift*0.0) % (w+40)) - 20;
+      const gw = (1.5 + t*8)*scaleF;
+      ctx.fillStyle = `rgba(170,195,210,${(0.22*(flick2-0.8)*5*fade).toFixed(3)})`;
+      ctx.fillRect(gx, y-amp*0.4, gw, Math.max(0.5, t*1.4*scaleF));
+    }
+  }
+}
+
+// ===================== Render: iceberg =====================
+function drawIceberg(w, h, horizonY, scaleF){
+  if(!state.icebergPoints.length) return;
+  const dx = state.icebergX-state.shipX, dy = state.icebergY-state.shipY;
+  const rel = relativeToShip(dx,dy,state.heading);
+  const forward = rel.forward, lateral = rel.lateral;
+  if(forward <= -30) return;
+  const relBearing = Math.atan2(lateral, Math.max(forward,1)) * 180/Math.PI;
+  if(Math.abs(relBearing) >= FOV_DEG*0.85) return;
+
+  const fClamped = Math.max(30, forward);
+  const sx = w/2 + (relBearing/FOV_DEG)*w;
+  const size = Math.min(420, 44 * (230/fClamped)) * scaleF;
+  const sinkage = Math.max(0, Math.min(150, (280-fClamped)*0.28)) * scaleF;
+  const baseY = horizonY + sinkage;
+  const fogAlpha = Math.max(0.35, Math.min(1, (ICEBERG_START_DIST-fClamped)/(ICEBERG_START_DIST*0.55)+0.35));
+
+  ctx.save();
+  ctx.globalAlpha = fogAlpha;
+  ctx.translate(sx, baseY);
+  const fogGrad = ctx.createRadialGradient(0,0,size*0.4,0,0,size*1.6);
+  fogGrad.addColorStop(0,'rgba(150,190,205,0.20)');
+  fogGrad.addColorStop(1,'rgba(150,190,205,0)');
+  ctx.fillStyle = fogGrad;
+  ctx.beginPath(); ctx.arc(0,0,size*1.6,0,Math.PI*2); ctx.fill();
+
+  ctx.beginPath();
+  state.icebergPoints.forEach((p,i)=>{
+    const x = size*p.r/34*Math.sin(p.a), y = -size*p.r/34*Math.cos(p.a)*0.85;
+    if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+  });
+  ctx.closePath();
+  const iceGrad = ctx.createLinearGradient(-size,-size,size,size);
+  iceGrad.addColorStop(0,'#e8f6f9');
+  iceGrad.addColorStop(0.5,'#a9c9d4');
+  iceGrad.addColorStop(1,'#4d6d7a');
+  ctx.fillStyle = iceGrad;
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(255,255,255,0.55)';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+  ctx.restore();
+}
+
+// ===================== Render: Titanic's bow (forecastle) =====================
+function ellipse(x,y,rx,ry){ ctx.beginPath(); ctx.ellipse(x,y,Math.max(0.1,rx),Math.max(0.1,ry),0,0,Math.PI*2); }
+
+function drawBow(w, h, horizonY, part){
+  const cx = w/2;
+  const seaH = h - horizonY;
+  const sy = horizonY + seaH*0.40;          // stem (tip of the bow)
+  const baseY = h + 6;
+  const hb = Math.min(w*0.26, seaH*0.78);   // half-width of the deck at the bottom of view
+  const U = seaH/280;
+
+  const P0 = {x:cx, y:sy};
+  const P1 = {x:cx+hb*0.82, y:sy+(baseY-sy)*0.30};
+  const P2 = {x:cx+hb, y:baseY};
+  const edge = (u)=>{
+    const a=(1-u)*(1-u), b=2*(1-u)*u, c=u*u;
+    return {x:a*P0.x+b*P1.x+c*P2.x, y:a*P0.y+b*P1.y+c*P2.y};
+  };
+  const at = (u,s)=>{ const e = edge(u); return {x:cx+s*(e.x-cx), y:e.y}; };
+  const sz = (u)=> U * ((edge(u).y - horizonY)/seaH);
+
+  const deckPath = (k)=>{
+    ctx.beginPath();
+    ctx.moveTo(P0.x, P0.y);
+    ctx.quadraticCurveTo(cx+(P1.x-cx)*k, P1.y, cx+(P2.x-cx)*k, P2.y);
+    ctx.lineTo(cx-(P2.x-cx)*k, P2.y);
+    ctx.quadraticCurveTo(cx-(P1.x-cx)*k, P1.y, P0.x, P0.y);
+    ctx.closePath();
+  };
+
+  // --- Bow wave: foam peeling away from the stem on both sides ---
+  const speedK = Math.max(0, Math.min(1, Math.abs(state.speed)/22));
+  if(part==='foam'){
+  if(speedK > 0.02){
+    ctx.save();
+    ctx.lineCap = 'round';
+    for(const side of [-1,1]){
+      // soft wash
+      ctx.beginPath();
+      ctx.moveTo(cx, sy+2*U);
+      ctx.quadraticCurveTo(cx+side*hb*1.0, sy+(baseY-sy)*0.25, cx+side*hb*1.32, baseY);
+      ctx.lineTo(cx+side*hb*1.0, baseY);
+      ctx.closePath();
+      ctx.fillStyle = `rgba(200,220,228,${(0.10*speedK).toFixed(3)})`;
+      ctx.fill();
+      for(let j=0;j<(LOWQ?3:8);j++){
+        const spread = 1.04 + j*0.045;
+        ctx.beginPath();
+        ctx.moveTo(cx+side*1.5*U, sy+(2+j*1.2)*U);
+        ctx.quadraticCurveTo(cx+side*hb*0.88*spread, sy+(baseY-sy)*0.24+j*2*U, cx+side*hb*spread*1.06, baseY-j*5*U);
+        ctx.setLineDash([(7+j*3)*U, (4+j*2.5)*U]);
+        ctx.lineDashOffset = -animT*55*U*speedK - j*7;
+        ctx.strokeStyle = `rgba(228,240,244,${((0.30-j*0.03)*speedK).toFixed(3)})`;
+        ctx.lineWidth = Math.max(0.5,(2.6-j*0.22)*U);
+        ctx.stroke();
+      }
+    }
+    ctx.setLineDash([]);
+    ctx.restore();
+  }
+  return;
+  }
+
+  // --- Hull flare (black hull visible just outside the deck edge) ---
+  deckPath(1.045);
+  ctx.fillStyle = '#050709';
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(150,175,190,0.22)';
+  ctx.lineWidth = 1.1*U;
+  ctx.stroke();
+  // gilt sheer line along the top of the hull
+  deckPath(1.022);
+  ctx.strokeStyle = 'rgba(205,165,95,0.45)';
+  ctx.lineWidth = 0.9*U;
+  ctx.stroke();
+
+  // --- Deck ---
+  deckPath(1);
+  const deckGrad = ctx.createLinearGradient(0, sy, 0, baseY);
+  deckGrad.addColorStop(0,'#1f1810');
+  deckGrad.addColorStop(1,'#43331f');
+  ctx.fillStyle = deckGrad;
+  ctx.fill();
+
+  ctx.save();
+  deckPath(1);
+  ctx.clip();
+
+  // planks converge on the vanishing point
+  const PL = 48;
+  const pw = hb*2.2/(PL*2);
+  const plankX = (k, y)=> cx + (k*pw)*(y-horizonY)/(baseY-horizonY);
+  for(let k=-PL; k<PL; k++){
+    if(hash(k*1.77) > 0.55){
+      ctx.beginPath();
+      ctx.moveTo(plankX(k,baseY), baseY);
+      ctx.lineTo(plankX(k+1,baseY), baseY);
+      ctx.lineTo(cx, horizonY);
+      ctx.closePath();
+      ctx.fillStyle = `rgba(255,215,160,${(0.015+hash(k*9.3)*0.03).toFixed(3)})`;
+      ctx.fill();
+    }
+  }
+  ctx.strokeStyle = 'rgba(0,0,0,0.38)';
+  ctx.lineWidth = 0.6*U;
+  ctx.beginPath();
+  for(let k=-PL; k<=PL; k++){
+    ctx.moveTo(plankX(k,baseY), baseY);
+    ctx.lineTo(cx, horizonY);
+  }
+  ctx.stroke();
+  // staggered butt joints
+  ctx.strokeStyle = 'rgba(0,0,0,0.3)';
+  ctx.lineWidth = 0.5*U;
+  ctx.beginPath();
+  for(let j=1;j<=20;j++){
+    const y = sy + (baseY-sy)*Math.pow(j/20, 1.5);
+    for(let k=-PL; k<PL; k++){
+      if((((k + j*3) % 5) + 5) % 5 === 0){
+        ctx.moveTo(plankX(k,y), y);
+        ctx.lineTo(plankX(k+1,y), y);
+      }
+    }
+  }
+  ctx.stroke();
+  // waterway / margin plank
+  deckPath(0.93);
+  ctx.strokeStyle = 'rgba(0,0,0,0.45)';
+  ctx.lineWidth = 1.2*U;
+  ctx.stroke();
+  // warm light spilling from the bridge
+  const lightPool = ctx.createRadialGradient(cx, baseY, 0, cx, baseY, hb*1.15);
+  lightPool.addColorStop(0,'rgba(255,190,120,0.13)');
+  lightPool.addColorStop(1,'rgba(255,190,120,0)');
+  ctx.fillStyle = lightPool;
+  ctx.fillRect(cx-hb*1.2, sy, hb*2.4, baseY-sy);
+  ctx.restore();
+
+  // --- Forestay running up from the stem to the foremast ---
+  ctx.strokeStyle = 'rgba(175,175,168,0.28)';
+  ctx.lineWidth = 0.9;
+  ctx.beginPath(); ctx.moveTo(cx, sy-1); ctx.lineTo(cx, -20); ctx.stroke();
+
+  // --- Jackstaff at the stem ---
+  {
+    const s0 = sz(0);
+    ctx.strokeStyle = '#cfc8b6';
+    ctx.lineWidth = Math.max(0.8, 2.2*s0);
+    ctx.beginPath(); ctx.moveTo(cx, sy); ctx.lineTo(cx, sy-42*s0); ctx.stroke();
+    ctx.fillStyle = '#e6bd7d';
+    ellipse(cx, sy-42*s0, 1.8*s0+0.6, 1.8*s0+0.6); ctx.fill();
+  }
+
+  // --- Stem bulwark plating at the very tip ---
+  {
+    const u = 0.1, hgt = 5*sz(u);
+    for(const side of [-1,1]){
+      const e = at(u, side*0.985);
+      ctx.beginPath();
+      ctx.moveTo(cx, sy);
+      ctx.lineTo(e.x, e.y);
+      ctx.lineTo(e.x, e.y-hgt);
+      ctx.lineTo(cx, sy-hgt*0.9);
+      ctx.closePath();
+      ctx.fillStyle = side<0 ? '#0d1013' : '#15191c';
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(210,205,190,0.55)';
+      ctx.lineWidth = 0.7*sz(u);
+      ctx.beginPath(); ctx.moveTo(cx, sy-hgt*0.9); ctx.lineTo(e.x, e.y-hgt); ctx.stroke();
+    }
+  }
+
+  // --- Anchor chains from the hawse pipes to the capstans ---
+  const drawChain = (u1,s1,u2,s2)=>{
+    const N = 18;
+    for(let i=0;i<=N;i++){
+      const f = i/N;
+      const u = u1 + (u2-u1)*f;
+      const s = s1 + (s2-s1)*f;
+      const p = at(u, s);
+      const k = sz(u);
+      ctx.strokeStyle = 'rgba(0,0,0,0.5)';
+      ctx.lineWidth = 0.9*k;
+      ellipse(p.x+0.6*k, p.y+0.5*k, (i%2?0.7:1.7)*k, (i%2?1.4:0.8)*k); ctx.stroke();
+      ctx.strokeStyle = '#77726a';
+      ctx.lineWidth = 0.7*k;
+      ellipse(p.x, p.y, (i%2?0.7:1.7)*k, (i%2?1.4:0.8)*k); ctx.stroke();
+    }
+  };
+  drawChain(0.13,-0.62, 0.355,-0.33);
+  drawChain(0.13, 0.62, 0.355, 0.33);
+  drawChain(0.06, 0.0, 0.18, 0.0);
+
+  // --- Centre anchor crane ---
+  {
+    const u = 0.2, s = sz(u), p = at(u,0);
+    const postH = 15*s;
+    ctx.fillStyle = '#2a2d2f';
+    ctx.fillRect(p.x-1.8*s, p.y-postH, 3.6*s, postH);
+    ctx.fillStyle = '#4b4e4c';
+    ctx.fillRect(p.x-1.8*s, p.y-postH, 1.1*s, postH);
+    const tip = at(0.08,0);
+    const ts = sz(0.08);
+    ctx.strokeStyle = '#3a3d3e';
+    ctx.lineWidth = 2.2*s;
+    ctx.beginPath(); ctx.moveTo(p.x, p.y-postH+1*s); ctx.lineTo(tip.x, tip.y-9*ts); ctx.stroke();
+    ctx.strokeStyle = 'rgba(190,185,170,0.6)';
+    ctx.lineWidth = 0.5*s;
+    ctx.beginPath(); ctx.moveTo(tip.x, tip.y-9*ts); ctx.lineTo(tip.x, tip.y-3*ts); ctx.stroke();
+    ctx.fillStyle = '#6b665a';
+    ellipse(p.x, p.y-postH, 2.4*s, 0.9*s); ctx.fill();
+  }
+
+  // --- Capstans ---
+  const drawCapstan = (p, s)=>{
+    const rw = 7*s, hh = 8*s, rr = 2.6*s;
+    ctx.fillStyle = 'rgba(0,0,0,0.4)';
+    ellipse(p.x+1.6*s, p.y+0.6*s, rw*1.15, rr*1.15); ctx.fill();
+    const g = ctx.createLinearGradient(p.x-rw,0,p.x+rw,0);
+    g.addColorStop(0,'#141617'); g.addColorStop(0.35,'#4c4d4a'); g.addColorStop(0.7,'#2a2b2a'); g.addColorStop(1,'#0f1011');
+    ctx.fillStyle = g;
+    ellipse(p.x, p.y, rw, rr); ctx.fill();
+    ctx.fillRect(p.x-rw, p.y-hh, rw*2, hh);
+    ctx.strokeStyle = 'rgba(0,0,0,0.45)';
+    ctx.lineWidth = 0.6*s;
+    ctx.beginPath();
+    for(let k=-2;k<=2;k++){ ctx.moveTo(p.x+k*rw*0.4, p.y-hh); ctx.lineTo(p.x+k*rw*0.4, p.y+rr*0.6); }
+    ctx.stroke();
+    ctx.fillStyle = '#6b665a';
+    ellipse(p.x, p.y-hh, rw, rr); ctx.fill();
+    ctx.strokeStyle = '#a39c88'; ctx.lineWidth = 0.6*s; ctx.stroke();
+    ctx.fillStyle = '#8d8674';
+    ellipse(p.x, p.y-hh-0.8*s, rw*0.45, rr*0.45); ctx.fill();
+    ctx.fillStyle = '#c9b48a';
+    ellipse(p.x, p.y-hh-1.1*s, rw*0.15, rr*0.15); ctx.fill();
+  };
+  [-0.33, 0, 0.33].forEach(s=> drawCapstan(at(0.37, s), sz(0.37)));
+
+  // --- Bollards & ventilators ---
+  const drawBollard = (p, s)=>{
+    const bw = 2.3*s, bh = 6*s;
+    ctx.fillStyle = 'rgba(0,0,0,0.4)';
+    ellipse(p.x+1*s, p.y+0.4*s, bw*1.2, bw*0.5); ctx.fill();
+    ctx.fillStyle = '#25282a';
+    ctx.fillRect(p.x-bw, p.y-bh, bw*2, bh);
+    ctx.fillStyle = '#3c3f40';
+    ctx.fillRect(p.x-bw, p.y-bh, bw*0.7, bh);
+    ctx.fillStyle = '#5b5c58';
+    ellipse(p.x, p.y-bh, bw*1.25, bw*0.5); ctx.fill();
+  };
+  const drawVent = (p, s)=>{
+    ctx.fillStyle = 'rgba(0,0,0,0.4)';
+    ellipse(p.x+1.4*s, p.y+0.5*s, 4*s, 1.5*s); ctx.fill();
+    ctx.fillStyle = '#7c7462';
+    ctx.fillRect(p.x-1.6*s, p.y-9*s, 3.2*s, 9*s);
+    ctx.fillStyle = '#a49b84';
+    ctx.fillRect(p.x-1.6*s, p.y-9*s, 1*s, 9*s);
+    ctx.fillStyle = '#8e8571';
+    ellipse(p.x, p.y-9*s, 6*s, 2.4*s); ctx.fill();
+    ctx.beginPath();
+    ctx.ellipse(p.x, p.y-9*s, 6*s, 4*s, 0, Math.PI, 0);
+    ctx.fillStyle = '#b3aa92';
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(0,0,0,0.35)'; ctx.lineWidth = 0.5*s;
+    ellipse(p.x, p.y-9*s, 6*s, 2.4*s); ctx.stroke();
+  };
+
+  for(const side of [-1,1]){
+    drawBollard(at(0.5, side*0.8), sz(0.5));
+    drawBollard(at(0.535, side*0.8), sz(0.535));
+  }
+  for(const side of [-1,1]) drawVent(at(0.6, side*0.46), sz(0.6));
+
+  // --- No. 1 hatch ---
+  {
+    const u1 = 0.67, u2 = 0.85;
+    const hc1 = 3*sz(u1), hc2 = 3*sz(u2);
+    const A = at(u1,-0.21), B = at(u1,0.21), C = at(u2,0.23), D = at(u2,-0.23);
+    // coaming front face
+    ctx.fillStyle = '#121513';
+    ctx.beginPath();
+    ctx.moveTo(D.x, D.y); ctx.lineTo(C.x, C.y); ctx.lineTo(C.x, C.y-hc2); ctx.lineTo(D.x, D.y-hc2);
+    ctx.closePath(); ctx.fill();
+    // tarpaulin top
+    ctx.fillStyle = '#2b3329';
+    ctx.beginPath();
+    ctx.moveTo(A.x, A.y-hc1); ctx.lineTo(B.x, B.y-hc1); ctx.lineTo(C.x, C.y-hc2); ctx.lineTo(D.x, D.y-hc2);
+    ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = '#4a5246'; ctx.lineWidth = 0.9*sz(u2); ctx.stroke();
+    // battens
+    ctx.strokeStyle = 'rgba(0,0,0,0.45)'; ctx.lineWidth = 0.7*sz(u2);
+    ctx.beginPath();
+    for(let k=1;k<5;k++){
+      const f = k/5;
+      const u = u1 + (u2-u1)*f;
+      const hc = 3*sz(u);
+      const L = at(u, -0.21-0.02*f), R = at(u, 0.21+0.02*f);
+      ctx.moveTo(L.x, L.y-hc); ctx.lineTo(R.x, R.y-hc);
+    }
+    ctx.stroke();
+  }
+
+  for(const side of [-1,1]){
+    drawBollard(at(0.8, side*0.8), sz(0.8));
+    drawBollard(at(0.835, side*0.8), sz(0.835));
+  }
+  for(const side of [-1,1]) drawVent(at(0.93, side*0.58), sz(0.93));
+
+  // --- Railings along both sides ---
+  for(const side of [-1,1]){
+    const N = 30;
+    const tops = [], mids = [];
+    ctx.strokeStyle = 'rgba(215,210,195,0.8)';
+    for(let i=0;i<=N;i++){
+      const u = 0.1 + 0.9*Math.pow(i/N, 1.45);
+      const e = at(u, side*0.985);
+      const k = sz(u);
+      const hgt = 13*k;
+      ctx.lineWidth = Math.max(0.5, 1.0*k);
+      ctx.beginPath(); ctx.moveTo(e.x, e.y); ctx.lineTo(e.x, e.y-hgt); ctx.stroke();
+      tops.push({x:e.x, y:e.y-hgt});
+      mids.push({x:e.x, y:e.y-hgt*0.5});
+    }
+    const poly = (pts, width, color)=>{
+      ctx.strokeStyle = color; ctx.lineWidth = width;
+      ctx.beginPath();
+      pts.forEach((p,i)=> i ? ctx.lineTo(p.x,p.y) : ctx.moveTo(p.x,p.y));
+      ctx.stroke();
+    };
+    poly(tops, Math.max(0.8, 1.3*U), 'rgba(225,220,205,0.85)');
+    poly(mids, Math.max(0.5, 0.8*U), 'rgba(205,200,185,0.6)');
+  }
+}
+
+let bowLayer = null, bowLayerKey = '';
+function getBowLayer(w, h, horizonY){
+  const key = `${w}x${h}@${DPR}`;
+  if(key !== bowLayerKey){
+    bowLayer = document.createElement('canvas');
+    bowLayer.width = Math.round(w*DPR);
+    bowLayer.height = Math.round(h*DPR);
+    const c2 = bowLayer.getContext('2d');
+    c2.setTransform(DPR,0,0,DPR,0,0);
+    const main = ctx; ctx = c2;
+    try{ drawBow(w, h, horizonY, 'static'); } finally { ctx = main; }
+    bowLayerKey = key;
+  }
+  return bowLayer;
+}
+
+// ===================== Render =====================
+function render(dt){
+  const w = VW, h = VH;
+  const horizonY = h*0.42;
+  const scaleF = h/480;
+
+  ctx.clearRect(0,0,w,h);
+
+  let shakeX=0, shakeY=0;
+  if(state.shakeT>0){
+    state.shakeT = Math.max(0, state.shakeT-(dt||0.016));
+    const mag = state.shakeT*18;
+    shakeX = randRange(-mag,mag); shakeY = randRange(-mag,mag);
+  }
+
+  const heading = state.phase==='intro' ? 0 : state.heading;
+
+  ctx.save();
+  const roll = (state.rudderActual||0) * 0.12;
+  ctx.translate(w/2+shakeX, horizonY+shakeY);
+  ctx.rotate(roll*Math.PI/180);
+  ctx.translate(-w/2, -horizonY);
+
+  const moonX = drawSky(w, h, horizonY, scaleF, heading);
+  drawSea(w, h, horizonY, scaleF, heading, moonX);
+  drawIceberg(w, h, horizonY, scaleF);
+
+  ctx.restore();
+
+  ctx.save();
+  ctx.translate(shakeX, shakeY);
+  drawBow(w, h, horizonY, 'foam');
+  ctx.drawImage(getBowLayer(w, h, horizonY), 0, 0, w, h);
+  ctx.restore();
+}
+
+// ===================== UI sync =====================
+let lastWheelRot = null;
+function updateWheelUI(){
+  if(state.wheelRotation !== lastWheelRot){
+    lastWheelRot = state.wheelRotation;
+    wheelGroup.style.transform = `rotate(${state.wheelRotation}deg)`;
+  }
+  setText(rudderValEl, `${Math.round(state.rudderActual)}°${Math.abs(state.rudderActual)<1?'':(state.rudderActual<0?' P':' S')}`);
+}
+
+function updateTelegraphUI(){
+  setLeverAngle(needleOrder, state.telegraphTarget.angle);
+  orderLabelEl.textContent = state.telegraphTarget.label;
+}
+
+function updateHUD(){
+  updateWheelUI();
+  const hd = Math.round(state.heading)%360;
+  setText(headingValEl, `${String(hd).padStart(3,'0')}°`);
+  setText(headingCardEl, cardinalName(state.heading));
+  setText(speedValEl, Math.abs(state.speed).toFixed(1));
+  setText(speedDirEl, state.speed < -0.05 ? 'KNOTS ASTERN' : 'KNOTS');
+  setLeverAngle(needleResponse, speedToAngle(state.speed));
+  setText(clockDisplay, tsString());
+
+  let status;
+  if(Math.abs(state.rudderActual)<2) status = 'STEADY — HOLDING COURSE';
+  else if(state.rudderActual<0) status = `TURNING TO PORT (${Math.abs(Math.round(state.rudderActual))}°)`;
+  else status = `TURNING TO STARBOARD (${Math.round(state.rudderActual)}°)`;
+  setText(hudStatus, status);
+}
+
+function formatTime(t){
+  const m = Math.floor(t/60), s = Math.floor(t%60);
+  return `${m}:${String(s).padStart(2,'0')}`;
+}
+
+// ===================== End overlay =====================
+function showEndOverlay(){
+  const o = state.outcome;
+  const eyebrow = document.getElementById('endEyebrow');
+  const title = document.getElementById('endTitle');
+  const narrative = document.getElementById('endNarrative');
+  const statTime = document.getElementById('statTime');
+  const statSurvived = document.getElementById('statSurvived');
+  const statLost = document.getElementById('statLost');
+  const historical = document.getElementById('endHistorical');
+
+  statTime.textContent = formatTime(state.elapsed);
+
+  if(o.type==='survived'){
+    eyebrow.textContent = 'Cleared';
+    title.textContent = 'She\u2019s Clear!';
+    narrative.textContent = `The berg slides past off the ${state.icebergX<state.shipX?'starboard':'port'} bow, close enough to hear the ice scrape the fog. The ship holds her course into open water.`;
+    statSurvived.textContent = TOTAL_SOULS.toLocaleString();
+    statLost.textContent = '0';
+    historical.textContent = `In reality, no such turn came in time. Tonight, under your command, all ${TOTAL_SOULS.toLocaleString()} aboard sail on.`;
+    endOverlay.hidden = false;
+    startReturnCountdown();
+  } else {
+    const sev = o.severity;
+    let lost = Math.round(HISTORICAL_LOST * sev);
+    lost = Math.max(40, Math.min(TOTAL_SOULS-50, lost));
+    const survived = TOTAL_SOULS - lost;
+    const sevWord = sev>0.75 ? 'a catastrophic, near head-on' : sev>0.4 ? 'a severe glancing' : 'a minor grazing';
+    eyebrow.textContent = 'Collision';
+    title.textContent = sev>0.75 ? 'Struck Amidships' : 'Ice Along the Hull';
+    narrative.textContent = `The ${o.side.toLowerCase()} bow catches ${sevWord} blow. Below the waterline, plates buckle and seams open to the sea.`;
+    statSurvived.textContent = survived.toLocaleString();
+    statLost.textContent = lost.toLocaleString();
+    historical.textContent = `On the real Titanic, a glancing collision at this same spot doomed 1,502 of 2,224 aboard. Small changes in heading and timing change everything.`;
+    endOverlay.hidden = false;
+    startReturnCountdown();
+  }
+}
+
+// ===================== Main loop =====================
+let idleAcc = 0;
+// Auto quality: if the first seconds of play run below ~28 fps, switch to low
+let perfTime = 0, perfFrames = 0, perfDecided = false;
+function measurePerformance(dt){
+  if(qualitySetting!=='auto' || perfDecided) return;
+  perfTime += dt; perfFrames++;
+  if(perfTime >= 2.5){
+    perfDecided = true;
+    if(perfFrames/perfTime < 28 && !LOWQ){ LOWQ = true; resizeCanvas(); updateQualityBtn(); }
+  }
+}
+function updateQualityBtn(){
+  const label = qualitySetting==='auto' ? `Auto (${LOWQ?'low':'high'})` : (qualitySetting==='high' ? 'High' : 'Low');
+  qualityBtn.textContent = 'Graphics: ' + label;
+}
+const qualityBtn = document.getElementById('qualityBtn');
+qualityBtn.addEventListener('click', ()=>{
+  qualitySetting = qualitySetting==='auto' ? 'high' : qualitySetting==='high' ? 'low' : 'auto';
+  try{ localStorage.setItem('titanic-quality', qualitySetting); }catch(e){}
+  LOWQ = qualitySetting==='low';
+  perfTime = 0; perfFrames = 0; perfDecided = false;
+  resizeCanvas(); updateQualityBtn();
+});
+updateQualityBtn();
+
+const fullscreenBtn = document.getElementById('fullscreenBtn');
+if(!document.fullscreenEnabled) fullscreenBtn.hidden = true;
+fullscreenBtn.addEventListener('click', ()=>{
+  const req = document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
+  if(req && req.catch) req.catch(()=>{ fullscreenBtn.hidden = true; });
+});
+document.addEventListener('fullscreenchange', ()=>{
+  fullscreenBtn.textContent = document.fullscreenElement ? 'Exit full screen' : 'Full screen';
+});
+
+function loop(now){
+  if(lastTime===null) lastTime = now;
+  const rawDt = Math.min(1,(now-lastTime)/1000);
+  const dt = Math.min(0.05, rawDt);
+  lastTime = now;
+  requestAnimationFrame(loop);
+
+  // Nothing is visible behind the full-screen video, so don't draw
+  if(!videoOverlay.hidden) return;
+
+  // Menu and result screens cover the bridge: redraw ~12 times a second instead of 60
+  let step = dt;
+  if(!introOverlay.hidden || !endOverlay.hidden){
+    idleAcc += dt;
+    if(idleAcc < 1/12) return;
+    step = Math.min(0.1, idleAcc);
+    idleAcc = 0;
+  } else {
+    idleAcc = 0;
+  }
+
+  animT += step;
+  seaPhase += (Math.abs(state.speed)<1.5 ? 1.5 : state.speed) * step * 1.1;
+  if(state.phase==='playing'){
+    const keyDir = (keysHeld.right?1:0) - (keysHeld.left?1:0);
+    if(keyDir) setWheel(state.wheelRotation + keyDir*WHEEL_KEY_SPEED*Math.min(0.05, step));
+    measurePerformance(rawDt);
+  }
+  if(state.phase==='playing') update(Math.min(0.05, step));
+  render(step);
+  updateCompass(Math.min(0.05, step));
+}
+
+// ===================== Start / restart =====================
+startBtn.addEventListener('click', ()=>{
+  introOverlay.hidden = true;
+  ac(); // unlock audio while we still have the click
+  playIntroVideo();
+});
+
+restartBtn.addEventListener('click', ()=>{
+  clearReturnCountdown();
+  endOverlay.hidden = true;
+  startGame();
+});
+
+setLeverAngle(needleOrder, TELEGRAPH_STEPS[6].angle);
+setLeverAngle(needleResponse, TELEGRAPH_STEPS[6].angle);
+requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>

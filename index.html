@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Steer R.M.S. Titanic past the iceberg, or explore the ship in 3D.">
+<title>R.M.S. Titanic</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Space+Mono:wght@400;700&display=swap">
+<style>
+/* Layout: one night scene. Title in the sky, the liner sitting on the horizon, two brass-framed doors below the waterline, the night's timeline along the bottom. Deliberately single dark theme: it is always 11:40 pm here. */
+:root{
+  --sky-top:#03070d;
+  --sky-low:#122436;
+  --sea:#08131d;
+  --panel:#111c27;
+  --line:#2c3d4d;
+  --brass:#b9905a;
+  --brass-hi:#e6bd7d;
+  --ivory:#ece3d0;
+  --fog:#8fa9b8;
+  --alarm:#d1483a;
+  --display:'Cinzel', 'Times New Roman', serif;
+  --body:'Cormorant Garamond', Georgia, serif;
+  --mono:'Space Mono', ui-monospace, 'Courier New', monospace;
+  color-scheme:dark;
+  font-size:clamp(15px, 0.95vw, 34px);
+}
+*{box-sizing:border-box;}
+html,body{min-height:100%;}
+body{
+  margin:0;
+  background:var(--sea);
+  color:var(--ivory);
+  font-family:var(--body);
+  -webkit-tap-highlight-color:transparent;
+}
+.night{
+  position:relative;
+  min-height:100%;
+  display:flex;
+  flex-direction:column;
+  background:var(--sea);
+  overflow:hidden;
+}
+.stars{
+  position:absolute;
+  inset:0 0 auto 0;
+  height:100%;
+  pointer-events:none;
+  background-image:
+    radial-gradient(1.4px 1.4px at 8% 18%, #fff 50%, transparent 51%),
+    radial-gradient(1px 1px at 17% 42%, #dbe6ff 50%, transparent 51%),
+    radial-gradient(1.6px 1.6px at 26% 9%, #fff 50%, transparent 51%),
+    radial-gradient(1px 1px at 34% 30%, #ffe9d0 50%, transparent 51%),
+    radial-gradient(1.2px 1.2px at 47% 14%, #fff 50%, transparent 51%),
+    radial-gradient(1px 1px at 55% 38%, #cfdcff 50%, transparent 51%),
+    radial-gradient(1.8px 1.8px at 63% 7%, #fff 50%, transparent 51%),
+    radial-gradient(1px 1px at 71% 26%, #fff 50%, transparent 51%),
+    radial-gradient(1.3px 1.3px at 80% 12%, #ffe2c4 50%, transparent 51%),
+    radial-gradient(1px 1px at 88% 34%, #fff 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 93% 6%, #dbe6ff 50%, transparent 51%),
+    radial-gradient(1px 1px at 4% 52%, #fff 50%, transparent 51%),
+    radial-gradient(1px 1px at 40% 55%, #fff 50%, transparent 51%),
+    radial-gradient(1.2px 1.2px at 76% 50%, #fff 50%, transparent 51%),
+    radial-gradient(1px 1px at 98% 48%, #fff 50%, transparent 51%);
+  opacity:0.85;
+}
+.inner{
+  position:relative;
+  width:100%;
+  max-width:78rem;
+  margin:0 auto;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));
+  padding-right:max(16px, env(safe-area-inset-right, 0px));
+}
+
+/* Sky: title */
+.above{
+  position:relative;
+  background:linear-gradient(180deg, var(--sky-top) 0%, var(--sky-low) 100%);
+}
+.sky{padding-block:2.4rem 0;text-align:center;}
+.eyebrow{
+  font-family:var(--mono);
+  font-size:0.72rem;
+  letter-spacing:0.28em;
+  text-transform:uppercase;
+  color:var(--fog);
+  margin:0 0 0.9rem;
+}
+h1{
+  font-family:var(--display);
+  font-weight:700;
+  font-size:clamp(2.4rem, 5.6vw, 4.6rem);
+  letter-spacing:0.16em;
+  line-height:1;
+  margin:0;
+  color:var(--brass-hi);
+  text-shadow:0 0 30px rgba(230,189,125,0.18);
+  text-wrap:balance;
+}
+.lede{
+  font-style:italic;
+  font-size:1.35rem;
+  line-height:1.45;
+  color:#d8d0bd;
+  max-width:36rem;
+  margin:1rem auto 0;
+  text-wrap:balance;
+}
+
+/* Horizon: the ship */
+.horizon{
+  position:relative;
+  margin-top:1.2rem;
+  display:flex;
+  justify-content:center;
+}
+.horizon img{
+  display:block;
+  width:min(100%, 52rem);
+  max-width:100%;
+  height:auto;
+  filter:drop-shadow(0 0 22px rgba(160,190,215,0.12));
+  margin-bottom:-0.4%;
+}
+.horizon::after{
+  content:"";
+  position:absolute;
+  left:50%;
+  bottom:-1.6rem;
+  transform:translateX(-50%);
+  width:min(90%, 52rem);
+  height:1.8rem;
+  background:radial-gradient(ellipse at 50% 0%, rgba(200,215,230,0.16), transparent 70%);
+  pointer-events:none;
+}
+/* the sea rises behind the lower hull so the ship sits in the water */
+.sea-band{
+  position:absolute;
+  left:0; right:0; bottom:0;
+  height:calc(min(100vw - 32px, 52rem) * 0.338 * 0.34);
+  background:linear-gradient(180deg, #0d1c29 0%, var(--sea) 70%);
+  border-top:1px solid rgba(143,169,184,0.18);
+  z-index:0;
+}
+.horizon{z-index:1;}
+.stars{z-index:0;}
+.sky{position:relative;z-index:1;}
+.berg{
+  position:absolute;
+  right:2%;
+  bottom:0;
+  width:clamp(2.6rem, 6vw, 5rem);
+  aspect-ratio:1.5/1;
+  max-width:100%;
+  background:linear-gradient(135deg, #f2fbfd, #a9c9d4 55%, #5e7f8c);
+  clip-path:polygon(0 100%, 14% 46%, 30% 52%, 46% 8%, 60% 30%, 74% 22%, 100% 100%);
+  opacity:0.9;
+}
+
+/* Below the waterline: the two doors */
+.doors{
+  display:grid;
+  grid-template-columns:repeat(2, minmax(0, 1fr));
+  gap:1.4rem;
+  padding-block:2.4rem 2rem;
+}
+.door{
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  gap:0.6rem;
+  padding:1.7rem 1.8rem 1.6rem;
+  background:linear-gradient(180deg, #172430, var(--panel));
+  border:1px solid var(--line);
+  border-radius:6px;
+  color:inherit;
+  text-decoration:none;
+  min-height:11rem;
+  transition:border-color 0.2s, transform 0.12s;
+  touch-action:manipulation;
+}
+.door::before{
+  content:"";
+  position:absolute;
+  inset:7px;
+  border:1px solid rgba(185,144,90,0.22);
+  border-radius:3px;
+  pointer-events:none;
+}
+.door:hover,.door:focus-visible{border-color:var(--brass);outline:none;}
+.door:focus-visible{box-shadow:0 0 0 3px rgba(230,189,125,0.45);}
+.door:active{transform:translateY(1px);}
+.door-kind{
+  font-family:var(--mono);
+  font-size:0.7rem;
+  letter-spacing:0.24em;
+  text-transform:uppercase;
+  color:var(--fog);
+}
+.door h2{
+  font-family:var(--display);
+  font-weight:700;
+  font-size:1.9rem;
+  letter-spacing:0.08em;
+  color:var(--brass-hi);
+  margin:0;
+}
+.door p{
+  font-size:1.2rem;
+  line-height:1.45;
+  margin:0;
+  color:#d4ccb9;
+  max-width:30rem;
+}
+.door-go{
+  margin-top:auto;
+  padding-top:0.6rem;
+  align-self:flex-start;
+  font-family:var(--display);
+  font-weight:700;
+  font-size:0.95rem;
+  letter-spacing:0.12em;
+  color:#1a130a;
+  background:linear-gradient(180deg, var(--brass-hi), var(--brass));
+  border-radius:3px;
+  padding:0.85rem 1.5rem;
+}
+
+/* The night, in order */
+.timeline{
+  border-top:1px solid var(--line);
+  padding-block:1.4rem calc(1.8rem + env(safe-area-inset-bottom, 0px));
+}
+.timeline h3{
+  font-family:var(--mono);
+  font-weight:400;
+  font-size:0.7rem;
+  letter-spacing:0.24em;
+  text-transform:uppercase;
+  color:var(--brass);
+  margin:0 0 0.9rem;
+}
+.timeline ol{
+  list-style:none;
+  margin:0;
+  padding:0;
+  display:grid;
+  grid-template-columns:repeat(4, minmax(0, 1fr));
+  gap:1rem;
+}
+.timeline li{display:flex;flex-direction:column;gap:0.2rem;min-width:0;}
+.timeline time{
+  font-family:var(--mono);
+  font-weight:700;
+  font-size:1.15rem;
+  color:var(--ivory);
+  font-variant-numeric:tabular-nums;
+}
+.timeline li:nth-child(2) time{color:#ff9b8e;}
+.timeline span{font-size:1.05rem;line-height:1.35;color:var(--fog);}
+
+@media (max-width:760px){
+  .doors{grid-template-columns:1fr;padding-block:2.2rem 1.8rem;}
+  .timeline ol{grid-template-columns:repeat(2, minmax(0, 1fr));}
+  .sky{padding-block:2.2rem 0;}
+  .lede{font-size:1.2rem;}
+}
+@media (prefers-reduced-motion: reduce){ .door{transition:none;} }
+</style>
+<style>
+.visits{
+  position:relative;
+  z-index:2;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:0.6rem;
+  padding-block:calc(0.45rem + env(safe-area-inset-top, 0px)) 0.45rem;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));
+  padding-right:max(16px, env(safe-area-inset-right, 0px));
+  background:rgba(3,7,13,0.92);
+  border-bottom:1px solid var(--line);
+  font-family:var(--mono);
+  font-size:0.72rem;
+  letter-spacing:0.18em;
+  text-transform:uppercase;
+  color:var(--fog);
+}
+.visits strong{
+  color:var(--brass-hi);
+  font-weight:700;
+  font-size:0.85rem;
+  letter-spacing:0.08em;
+  font-variant-numeric:tabular-nums;
+}
+.visits .lamp{
+  width:7px; height:7px; border-radius:50%;
+  background:var(--brass);
+  box-shadow:0 0 8px rgba(230,189,125,0.7);
+}
+</style>
+<style>[hidden]{display:none!important}</style>
+</head>
+<body>
+
+
+
+<div class="visits" id="visits" aria-live="polite">
+  <span class="lamp" aria-hidden="true"></span>
+  <span>Visits to this site</span>
+  <strong id="visitCount">…</strong>
+</div>
+<main class="night">
+  <div class="above">
+  <div class="stars" aria-hidden="true"></div>
+
+  <section class="inner sky">
+    <p class="eyebrow">North Atlantic · 14 April 1912 · 41°46′N 50°14′W</p>
+    <h1>R.M.S. TITANIC</h1>
+    <p class="lede">The largest ship afloat is four days out of Southampton, steaming at 22 knots on a calm, moonless night.</p>
+  </section>
+
+  <div class="inner horizon">
+    <img src="ship-profile.png" alt="Side view of R.M.S. Titanic with her four buff funnels, from the 3D model" width="1708" height="577">
+    <div class="berg" aria-hidden="true"></div>
+  </div>
+  <div class="sea-band" aria-hidden="true"></div>
+  </div>
+
+  <section class="inner doors" aria-label="Choose">
+    <a class="door" href="game.html">
+      <span class="door-kind">Game · about 1 minute</span>
+      <h2>Take the Helm</h2>
+      <p>The iceberg is already in sight. Turn the wheel, signal the engine room, and decide what happens next.</p>
+      <span class="door-go">Start the game</span>
+    </a>
+    <a class="door" href="ship.html">
+      <span class="door-kind">3D model · touch to explore</span>
+      <h2>Explore the Ship</h2>
+      <p>Turn the whole liner with one finger and tap the brass markers to see where the night went wrong.</p>
+      <span class="door-go">Open the 3D ship</span>
+    </a>
+  </section>
+
+  <section class="inner timeline" aria-labelledby="tl">
+    <h3 id="tl">The night, in order</h3>
+    <ol>
+      <li><time>11:39 pm</time><span>Lookout Frederick Fleet sights the iceberg</span></li>
+      <li><time>11:40 pm</time><span>Ice scrapes the starboard bow</span></li>
+      <li><time>12:45 am</time><span>The first lifeboat is lowered</span></li>
+      <li><time>2:20 am</time><span>Titanic sinks. About 1,500 lost, about 710 saved</span></li>
+    </ol>
+  </section>
+</main>
+
+<script>
+/* Visit counter, stored by the free Abacus counting service (abacus.jasoncameron.dev).
+   Each browser counts once per session, so refreshing the page doesn't add to it. */
+(function(){
+  var NAMESPACE = 'rms-titanic-helm-x7k2q';
+  var KEY = 'visits';
+  var BASE = 'https://abacus.jasoncameron.dev/';
+  var el = document.getElementById('visitCount');
+  var counted = false;
+  try{ counted = sessionStorage.getItem('titanic-visit-counted') === '1'; }catch(e){}
+  var url = BASE + (counted ? 'get/' : 'hit/') + NAMESPACE + '/' + KEY;
+  fetch(url, {cache:'no-store'})
+    .then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); })
+    .then(function(d){
+      if(typeof d.value !== 'number') throw new Error('bad');
+      el.textContent = d.value.toLocaleString('en-IN');
+      if(!counted){ try{ sessionStorage.setItem('titanic-visit-counted','1'); }catch(e){} }
+    })
+    .catch(function(){
+      document.getElementById('visits').hidden = true;
+    });
+})();
+</script>
+</body>
+</html>

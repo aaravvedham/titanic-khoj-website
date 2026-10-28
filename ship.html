@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+<title>R.M.S. Titanic in 3D</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Space+Mono:wght@400;700&display=swap">
+<style>
+/* Layout: full-bleed 3D stage; brass instrument bars float top and bottom; fact card slides up from the bottom. */
+:root{
+  --night:#0b1520;
+  --steel:#131d29;
+  --steel-2:#1b2733;
+  --line:#2c3d4d;
+  --brass:#b9905a;
+  --brass-hi:#e6bd7d;
+  --ivory:#ece3d0;
+  --fog:#8fa9b8;
+  --alarm:#d1483a;
+  --display:'Cinzel', 'Times New Roman', serif;
+  --body:'Cormorant Garamond', Georgia, serif;
+  --mono:'Space Mono', ui-monospace, 'Courier New', monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box;}
+html,body{
+  margin:0;
+  height:100%;
+  background:var(--night);
+  color:var(--ivory);
+  font-family:var(--body);
+  overflow:hidden;
+  touch-action:none;
+  -webkit-user-select:none;
+  user-select:none;
+}
+#stage{position:fixed;inset:0;display:block;width:100%;height:100%;}
+
+.bar{
+  position:fixed;
+  left:0; right:0;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));
+  padding-right:max(16px, env(safe-area-inset-right, 0px));
+  z-index:5;
+  pointer-events:none;
+}
+.bar > *{pointer-events:auto;}
+.top-bar{
+  top:0;
+  padding-top:calc(12px + env(safe-area-inset-top, 0px));
+  padding-bottom:12px;
+  background:linear-gradient(180deg, rgba(5,10,18,0.85), rgba(5,10,18,0));
+  justify-content:space-between;
+}
+.title-block{display:flex;flex-direction:column;gap:2px;min-width:0;}
+.title{
+  font-family:var(--display);
+  font-weight:700;
+  font-size:clamp(17px,2.2vw,24px);
+  letter-spacing:0.14em;
+  color:var(--brass-hi);
+  margin:0;
+  white-space:nowrap;
+}
+.subtitle{
+  font-family:var(--mono);
+  font-size:10px;
+  letter-spacing:0.18em;
+  text-transform:uppercase;
+  color:var(--fog);
+}
+.actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;}
+
+.btn{
+  font-family:var(--mono);
+  font-size:11px;
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+  color:var(--ivory);
+  background:linear-gradient(180deg,#24323f,#16212c);
+  border:1px solid var(--line);
+  border-radius:4px;
+  min-height:44px;
+  padding:0 14px;
+  cursor:pointer;
+  text-decoration:none;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  white-space:nowrap;
+  touch-action:manipulation;
+}
+.btn:hover,.btn:focus-visible{border-color:var(--brass);color:var(--brass-hi);outline:none;}
+.btn[aria-pressed="true"]{
+  background:linear-gradient(180deg,#5c4526,#3b2c17);
+  border-color:var(--brass-hi);
+  color:var(--brass-hi);
+}
+
+.bottom-bar{
+  bottom:0;
+  padding-bottom:calc(14px + env(safe-area-inset-bottom, 0px));
+  padding-top:24px;
+  background:linear-gradient(0deg, rgba(5,10,18,0.9), rgba(5,10,18,0));
+  flex-direction:column;
+  align-items:stretch;
+  gap:8px;
+}
+.views-label{
+  font-family:var(--mono);
+  font-size:10px;
+  letter-spacing:0.2em;
+  text-transform:uppercase;
+  color:var(--brass);
+  text-align:center;
+}
+.views{
+  display:flex;
+  gap:8px;
+  justify-content:center;
+  overflow-x:auto;
+  scrollbar-width:none;
+  padding-bottom:2px;
+  touch-action:pan-x;
+}
+.views::-webkit-scrollbar{display:none;}
+.views .btn{min-height:52px;padding:0 18px;flex:0 0 auto;}
+.hint{
+  font-family:var(--mono);
+  font-size:10px;
+  letter-spacing:0.06em;
+  color:#6f8796;
+  text-align:center;
+}
+
+/* Hotspot pins projected from 3D */
+#pins{position:fixed;inset:0;pointer-events:none;z-index:3;}
+.pin{
+  position:absolute;
+  left:0; top:0;
+  transform:translate(-50%,-50%);
+  pointer-events:auto;
+  display:flex;
+  align-items:center;
+  gap:6px;
+  background:none;
+  border:none;
+  padding:6px;
+  cursor:pointer;
+  touch-action:manipulation;
+}
+.pin .dot{
+  width:26px; height:26px;
+  border-radius:50%;
+  background:radial-gradient(circle at 35% 30%, #f3d29b, #b9905a 60%, #6b4c28);
+  border:2px solid #f6e7c8;
+  box-shadow:0 0 0 4px rgba(230,189,125,0.25), 0 3px 8px rgba(0,0,0,0.6);
+  font-family:var(--mono);
+  font-weight:700;
+  font-size:12px;
+  color:#1a130a;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex:0 0 auto;
+}
+.pin.danger .dot{
+  background:radial-gradient(circle at 35% 30%, #ff9b8e, #d1483a 60%, #7a1f16);
+  border-color:#ffd9d2;
+  box-shadow:0 0 0 4px rgba(209,72,58,0.3), 0 3px 8px rgba(0,0,0,0.6);
+  color:#fff;
+}
+.pin .tag{
+  font-family:var(--mono);
+  font-size:10.5px;
+  letter-spacing:0.1em;
+  text-transform:uppercase;
+  color:var(--ivory);
+  background:rgba(5,10,18,0.78);
+  border:1px solid rgba(143,169,184,0.3);
+  border-radius:3px;
+  padding:3px 7px;
+  white-space:nowrap;
+}
+.pin:focus-visible .dot{outline:2px solid var(--brass-hi);outline-offset:3px;}
+.pin[hidden]{display:none;}
+body.no-labels .pin .tag{display:none;}
+@media (max-width:640px){ .pin .tag{display:none;} }
+
+/* Fact card */
+.card{
+  position:fixed;
+  left:50%;
+  bottom:calc(150px + env(safe-area-inset-bottom, 0px));
+  transform:translateX(-50%);
+  width:min(520px, calc(100% - 32px));
+  background:linear-gradient(180deg,var(--steel-2),var(--steel));
+  border:1px solid #7a5f3a;
+  border-radius:6px;
+  padding:20px 22px 18px;
+  box-shadow:0 18px 50px rgba(0,0,0,0.65);
+  z-index:6;
+}
+.card[hidden]{display:none;}
+.card-eyebrow{
+  font-family:var(--mono);
+  font-size:10px;
+  letter-spacing:0.22em;
+  text-transform:uppercase;
+  color:var(--fog);
+  margin:0 0 6px;
+}
+.card h2{
+  font-family:var(--display);
+  font-weight:700;
+  font-size:21px;
+  letter-spacing:0.06em;
+  color:var(--brass-hi);
+  margin:0 0 8px;
+  text-wrap:balance;
+}
+.card p{
+  font-size:18px;
+  line-height:1.45;
+  margin:0;
+  color:#ddd4c0;
+  max-width:62ch;
+}
+.card-close{
+  position:absolute;
+  top:10px; right:10px;
+  width:44px; height:44px;
+  min-height:44px;
+  padding:0;
+  font-size:18px;
+}
+
+/* Loading / error */
+.loader{
+  position:fixed;
+  inset:0;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:16px;
+  background:var(--night);
+  z-index:10;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));
+  padding-right:max(16px, env(safe-area-inset-right, 0px));
+  text-align:center;
+}
+.loader[hidden]{display:none;}
+.loader-title{
+  font-family:var(--display);
+  font-weight:700;
+  letter-spacing:0.18em;
+  color:var(--brass-hi);
+  font-size:22px;
+}
+.gauge{
+  width:min(320px, 80vw);
+  height:6px;
+  border-radius:3px;
+  background:#1b2733;
+  overflow:hidden;
+  border:1px solid var(--line);
+}
+.gauge > div{height:100%;width:0;background:linear-gradient(90deg,var(--brass),var(--brass-hi));transition:width 0.2s;}
+.loader-note{font-family:var(--mono);font-size:11px;letter-spacing:0.12em;color:var(--fog);}
+
+@media (max-width:640px){
+  .subtitle{display:none;}
+  .views{justify-content:flex-start;}
+  .card{bottom:calc(140px + env(safe-area-inset-bottom, 0px));}
+}
+@media (prefers-reduced-motion: reduce){ .gauge > div{transition:none;} }
+</style>
+</head>
+<body>
+<canvas id="stage"></canvas>
+<div id="pins"></div>
+
+<header class="bar top-bar">
+  <div class="title-block">
+    <h1 class="title">R.M.S. TITANIC</h1>
+    <div class="subtitle">Olympic-class liner · 269 m · launched 1911</div>
+  </div>
+  <div class="actions">
+    <a class="btn" href="index.html">⟵ Home</a>
+    <button class="btn" id="labelsBtn" type="button" aria-pressed="true">Labels</button>
+    <button class="btn" id="seaBtn" type="button" aria-pressed="true">Sea</button>
+    <button class="btn" id="fsBtn" type="button">Full screen</button>
+  </div>
+</header>
+
+<div class="card" id="card" hidden role="dialog" aria-labelledby="cardTitle">
+  <p class="card-eyebrow" id="cardEyebrow"></p>
+  <h2 id="cardTitle"></h2>
+  <p id="cardText"></p>
+  <button class="btn card-close" id="cardClose" type="button" aria-label="Close">✕</button>
+</div>
+
+<footer class="bar bottom-bar">
+  <div class="views-label">Jump to a view</div>
+  <div class="views" id="views"></div>
+  <div class="hint">One finger to turn the ship · two fingers to zoom and move · tap a brass marker to learn more</div>
+</footer>
+
+<div class="loader" id="loader">
+  <div class="loader-title">Raising the ship…</div>
+  <div class="gauge"><div id="gaugeFill"></div></div>
+  <div class="loader-note" id="loaderNote">Loading the 3D model</div>
+</div>
+
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+// Model coordinates are metres: stern at x≈0, bow at x≈270, up is +y, starboard is +z.
+const WATERLINE = -15.6;
+const CENTER = new THREE.Vector3(135, 0, 0);
+
+const canvas = document.getElementById('stage');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias:true, powerPreference:'high-performance' });
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x2b3d52);
+scene.fog = new THREE.Fog(0x2b3d52, 600, 1600);
+
+const camera = new THREE.PerspectiveCamera(35, 1, 1, 3000);
+camera.position.set(330, 70, 230);
+
+// Moonlit evening: cool sky light, a soft warm key light and a fill from the other side
+scene.add(new THREE.HemisphereLight(0xc9d8ea, 0x1a2430, 1.6));
+const key = new THREE.DirectionalLight(0xfff1dc, 2.2);
+key.position.set(220, 300, 260);
+scene.add(key);
+const fill = new THREE.DirectionalLight(0x9fb7d6, 0.8);
+fill.position.set(-200, 120, -260);
+scene.add(fill);
+
+// Sea at the waterline
+const sea = new THREE.Mesh(
+  new THREE.CircleGeometry(1400, 64),
+  new THREE.MeshStandardMaterial({ color:0x183447, roughness:0.85, metalness:0, transparent:true, opacity:0.9 })
+);
+sea.rotation.x = -Math.PI/2;
+sea.position.set(CENTER.x, WATERLINE, 0);
+scene.add(sea);
+
+const controls = new OrbitControls(camera, canvas);
+controls.target.copy(CENTER);
+controls.enableDamping = true;
+controls.dampingFactor = 0.12;
+controls.minDistance = 12;
+controls.maxDistance = 800;
+controls.maxPolarAngle = Math.PI * 0.94;
+controls.rotateSpeed = 0.7;
+controls.touches = { ONE: THREE.TOUCH.ROTATE, TWO: THREE.TOUCH.DOLLY_PAN };
+
+// ---------- Sizing: cap the render size so 4K screens and slow boards stay smooth ----------
+const MAX_BACKING_W = 1920, MAX_BACKING_H = 1200;
+function resize(){
+  const w = window.innerWidth, h = window.innerHeight;
+  const pr = Math.max(0.5, Math.min(window.devicePixelRatio || 1, MAX_BACKING_W / w, MAX_BACKING_H / h));
+  renderer.setPixelRatio(pr);
+  renderer.setSize(w, h, false);
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+  requestRender();
+}
+window.addEventListener('resize', resize);
+
+// ---------- Render only when something changes (keeps the board cool) ----------
+let dirty = true, tween = null;
+function requestRender(){ dirty = true; }
+controls.addEventListener('change', requestRender);
+
+function tick(now){
+  requestAnimationFrame(tick);
+  if(tween){
+    const t = Math.min(1, (now - tween.start) / tween.dur);
+    const e = t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t + 2, 3)/2;
+    camera.position.lerpVectors(tween.fromPos, tween.toPos, e);
+    controls.target.lerpVectors(tween.fromTarget, tween.toTarget, e);
+    if(t >= 1) tween = null;
+    dirty = true;
+  }
+  if(controls.update()) dirty = true;
+  if(dirty){
+    dirty = false;
+    renderer.render(scene, camera);
+    placePins();
+  }
+}
+
+// ---------- Preset views ----------
+const VIEWS = [
+  { id:'whole',  label:'Whole ship', pos:[330, 70, 230],  target:[135, 0, 0] },
+  { id:'bow',    label:'Bow',        pos:[330, 25, 70],   target:[245, 2, 0] },
+  { id:'bridge', label:'Bridge',     pos:[250, 30, 45],   target:[208, 8, 0] },
+  { id:'funnels',label:'Funnels',    pos:[150, 60, 110],  target:[140, 14, 0] },
+  { id:'deck',   label:'Boat deck',  pos:[215, 15, 9],    target:[150, 9, 9] },
+  { id:'stern',  label:'Stern',      pos:[-70, 25, 90],   target:[30, -4, 0] },
+  { id:'under',  label:'Below the waterline', pos:[60, -40, 80], target:[40, -18, 0], sea:false },
+  { id:'above',  label:'From above', pos:[135, 420, 1],   target:[135, 0, 0] },
+];
+const viewsEl = document.getElementById('views');
+VIEWS.forEach(v => {
+  const b = document.createElement('button');
+  b.className = 'btn'; b.type = 'button'; b.textContent = v.label;
+  b.addEventListener('click', () => goTo(v));
+  viewsEl.appendChild(b);
+});
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+function goTo(v){
+  if(v.sea === false) setSea(false);
+  const toPos = new THREE.Vector3(...v.pos), toTarget = new THREE.Vector3(...v.target);
+  if(reduceMotion){
+    camera.position.copy(toPos); controls.target.copy(toTarget); requestRender(); return;
+  }
+  tween = { start: performance.now(), dur: 1100,
+    fromPos: camera.position.clone(), toPos, fromTarget: controls.target.clone(), toTarget };
+}
+
+// ---------- Hotspots ----------
+const SPOTS = [
+  { n:1, name:'Crow’s nest', at:[233, 19, 0], eyebrow:'11:39 pm',
+    text:'Lookouts Frederick Fleet and Reginald Lee stood watch here, about 29 m above the sea, without binoculars. Fleet rang the bell three times and telephoned the bridge: “Iceberg, right ahead!”' },
+  { n:2, name:'Bridge', at:[209, 10, 0], eyebrow:'Command',
+    text:'First Officer William Murdoch was in charge of the watch. He ordered the ship turned hard to port, and the bow swung away, but there was too little time to miss the iceberg completely.' },
+  { n:3, name:'Iceberg damage', at:[232, -17, 13.5], eyebrow:'Starboard side, below the waterline', danger:true,
+    text:'The iceberg scraped along about 90 m of the starboard side, opening the first six watertight compartments to the sea. Titanic could have stayed afloat with four flooded, but not six.' },
+  { n:4, name:'Lifeboats', at:[175, 9, 12.5], eyebrow:'Boat deck',
+    text:'Titanic carried 20 lifeboats with room for 1,178 people, about half of the 2,224 aboard. That met the rules of the time, which were based on a ship’s weight, not on how many people it carried.' },
+  { n:5, name:'Fourth funnel', at:[84, 24, 0], eyebrow:'For looks and air',
+    text:'Only three funnels carried smoke from the 29 boilers. The fourth, nearest the stern, mostly ventilated the engine rooms and kitchens, and made the ship look even more powerful.' },
+  { n:6, name:'Propellers', at:[14, -17, 8.5], eyebrow:'Engines',
+    text:'Two giant steam piston engines drove the outer propellers. Their used steam then powered a turbine for the centre propeller, which could not run in reverse.' },
+  { n:7, name:'Rudder', at:[8.6, -19, 0], eyebrow:'Steering',
+    text:'The rudder was about 24 m tall and was swung by steam steering engines, controlled from the wheel on the bridge. Some historians argue it was small for a ship of her length, making her slower to turn.' },
+  { n:8, name:'Bow', at:[268, 6, 0], eyebrow:'2:20 am, 15 April 1912',
+    text:'Flooding pulled the bow under first. Two hours and forty minutes after the collision the ship broke apart and sank. About 1,500 people were lost.' },
+];
+const pinsEl = document.getElementById('pins');
+const card = document.getElementById('card');
+SPOTS.forEach(s => {
+  s.vec = new THREE.Vector3(...s.at);
+  const b = document.createElement('button');
+  b.className = 'pin' + (s.danger ? ' danger' : '');
+  b.type = 'button';
+  b.setAttribute('aria-label', s.name);
+  b.innerHTML = `<span class="dot">${s.n}</span><span class="tag">${s.name}</span>`;
+  b.addEventListener('click', () => openCard(s));
+  pinsEl.appendChild(b);
+  s.el = b;
+});
+const tmp = new THREE.Vector3();
+function placePins(){
+  const w = window.innerWidth, h = window.innerHeight;
+  for(const s of SPOTS){
+    tmp.copy(s.vec).project(camera);
+    const visible = tmp.z < 1 && tmp.z > -1 && Math.abs(tmp.x) < 1.05 && Math.abs(tmp.y) < 1.05
+      && !(s.vec.y < WATERLINE && seaOn && camera.position.y > WATERLINE);
+    s.el.hidden = !visible;
+    if(visible){
+      s.el.style.transform = `translate(${((tmp.x+1)/2*w).toFixed(1)}px, ${((1-tmp.y)/2*h).toFixed(1)}px) translate(-13px,-50%)`;
+    }
+  }
+}
+function openCard(s){
+  document.getElementById('cardEyebrow').textContent = s.eyebrow;
+  document.getElementById('cardTitle').textContent = s.name;
+  document.getElementById('cardText').textContent = s.text;
+  card.hidden = false;
+  if(s.vec.y < WATERLINE && seaOn) setSea(false);
+}
+document.getElementById('cardClose').addEventListener('click', () => { card.hidden = true; });
+
+// ---------- Toggles ----------
+let seaOn = true;
+const seaBtn = document.getElementById('seaBtn');
+function setSea(on){
+  seaOn = on; sea.visible = on;
+  seaBtn.setAttribute('aria-pressed', String(on));
+  requestRender();
+}
+seaBtn.addEventListener('click', () => setSea(!seaOn));
+
+const labelsBtn = document.getElementById('labelsBtn');
+let labelsOn = true;
+labelsBtn.addEventListener('click', () => {
+  labelsOn = !labelsOn;
+  pinsEl.style.display = labelsOn ? '' : 'none';
+  labelsBtn.setAttribute('aria-pressed', String(labelsOn));
+});
+
+const fsBtn = document.getElementById('fsBtn');
+if(!document.fullscreenEnabled) fsBtn.hidden = true;
+fsBtn.addEventListener('click', () => {
+  const p = document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
+  if(p && p.catch) p.catch(() => { fsBtn.hidden = true; });
+});
+document.addEventListener('fullscreenchange', () => {
+  fsBtn.textContent = document.fullscreenElement ? 'Exit full screen' : 'Full screen';
+});
+
+// ---------- Load the model ----------
+const loaderEl = document.getElementById('loader');
+const gaugeFill = document.getElementById('gaugeFill');
+const loaderNote = document.getElementById('loaderNote');
+const MODEL_BYTES = 3562404;   // size of titanic.glb, for the progress bar
+
+async function fetchModelBytes(){
+  const res = await fetch('titanic.glb');
+  if(!res.ok) throw new Error('HTTP ' + res.status);
+  const total = Number(res.headers.get('content-length')) || MODEL_BYTES;
+  if(!(res.body && res.body.getReader)) return await res.arrayBuffer();
+  const reader = res.body.getReader();
+  const chunks = []; let got = 0;
+  for(;;){
+    const { done, value } = await reader.read();
+    if(done) break;
+    chunks.push(value); got += value.length;
+    gaugeFill.style.width = Math.min(98, got / total * 100).toFixed(0) + '%';
+  }
+  const all = new Uint8Array(got); let off = 0;
+  for(const c of chunks){ all.set(c, off); off += c.length; }
+  return all.buffer;
+}
+
+async function loadModel(){
+  loaderEl.hidden = false;
+  loaderNote.textContent = 'Loading the 3D model';
+  try{
+    const buffer = await fetchModelBytes();
+    loaderNote.textContent = 'Assembling the ship';
+    const gltf = await new Promise((resolve, reject) => new GLTFLoader().parse(buffer, '', resolve, reject));
+    gltf.scene.traverse(o => {
+      if(o.isMesh){
+        o.material.side = THREE.DoubleSide;
+        o.matrixAutoUpdate = false;
+        o.updateMatrix();
+      }
+    });
+    scene.add(gltf.scene);
+    gaugeFill.style.width = '100%';
+    loaderEl.hidden = true;
+    requestRender();
+  }catch(err){
+    console.error(err);
+    loaderNote.textContent = 'The 3D model didn\u2019t load. Check the internet connection, then ';
+    const retry = document.createElement('button');
+    retry.className = 'btn'; retry.type = 'button'; retry.textContent = 'Try again';
+    retry.style.marginLeft = '8px';
+    retry.addEventListener('click', loadModel);
+    loaderNote.appendChild(retry);
+  }
+}
+
+resize();
+loadModel();
+requestAnimationFrame(tick);
+
+// Small hook used only for generating the home-page picture
+window.__ship = { renderer, scene, camera, controls, setSea, requestRender, THREE };
+</script>
+</body>
+</html>
