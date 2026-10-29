@@ -361,6 +361,21 @@ h1{
       <li><time>2:20 am</time><span>Titanic sinks. About 1,500 lost, about 710 saved</span></li>
     </ol>
   </section>
+  <section class="inner share" aria-labelledby="shareTitle">
+    <style>
+      .share{display:flex;align-items:center;justify-content:center;gap:1.6rem;flex-wrap:wrap;padding-block:0.4rem calc(2.4rem + env(safe-area-inset-bottom, 0px));text-align:left;}
+      .share img{width:9.5rem;max-width:100%;height:auto;background:#fff;border-radius:8px;padding:0.4rem;box-shadow:0 0 0 1px var(--line), 0 8px 24px rgba(0,0,0,0.45);}
+      .share h3{font-family:var(--display);font-weight:700;font-size:1.3rem;letter-spacing:0.06em;color:var(--brass-hi);margin:0 0 0.4rem;}
+      .share p{font-size:1.1rem;line-height:1.45;color:#d4ccb9;margin:0 0 0.5rem;max-width:24rem;}
+      .share .link{font-family:var(--mono);font-size:0.75rem;letter-spacing:0.04em;color:var(--fog);word-break:break-all;user-select:all;}
+    </style>
+    <img src="share-qr.png" alt="QR code linking to this website" width="600" height="600">
+    <div>
+      <h3 id="shareTitle">Share the Voyage</h3>
+      <p>Want to show someone else? Ask them to point their phone camera at this code, and the site will open on their phone.</p>
+      <div class="link">aaravvedham.github.io/titanic-khoj-website</div>
+    </div>
+  </section>
 </main>
 
 <script>
