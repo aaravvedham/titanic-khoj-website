@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#08131d">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Why Titanic Broke Apart</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Space+Mono:wght@400;700&display=swap">
+<style>
+/* Same night-time look as the rest of the site */
+:root{
+  --night:#08131d;
+  --panel:#111c27;
+  --line:#2c3d4d;
+  --brass:#b9905a;
+  --brass-hi:#e6bd7d;
+  --ivory:#ece3d0;
+  --fog:#8fa9b8;
+  --sea:#1d4a66;
+  --sea-hi:#3f86ad;
+  --alarm:#d1483a;
+  --display:'Cinzel', 'Times New Roman', serif;
+  --body:'Cormorant Garamond', Georgia, serif;
+  --mono:'Space Mono', ui-monospace, 'Courier New', monospace;
+  color-scheme:dark;
+  font-size:clamp(16px, 1vw, 30px);
+}
+*{box-sizing:border-box;}
+body{
+  margin:0;
+  background:var(--night);
+  color:var(--ivory);
+  font-family:var(--body);
+  font-size:1.2rem;
+  line-height:1.55;
+}
+.wrap{
+  max-width:46rem;
+  margin:0 auto;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));
+  padding-right:max(16px, env(safe-area-inset-right, 0px));
+  padding-block:1.4rem 3rem;
+}
+.top{display:flex;justify-content:space-between;align-items:center;gap:1rem;margin-bottom:2rem;}
+.btn{
+  font-family:var(--mono);
+  font-size:0.7rem;
+  letter-spacing:0.14em;
+  text-transform:uppercase;
+  color:var(--ivory);
+  text-decoration:none;
+  border:1px solid var(--line);
+  border-radius:4px;
+  padding:0.7rem 1rem;
+  background:#16222d;
+}
+.btn:hover,.btn:focus-visible{border-color:var(--brass);color:var(--brass-hi);outline:none;}
+.eyebrow{
+  font-family:var(--mono);
+  font-size:0.7rem;
+  letter-spacing:0.24em;
+  text-transform:uppercase;
+  color:var(--fog);
+  margin:0 0 0.6rem;
+}
+h1{
+  font-family:var(--display);
+  font-weight:700;
+  font-size:clamp(1.8rem, 4.5vw, 2.8rem);
+  letter-spacing:0.06em;
+  line-height:1.15;
+  color:var(--brass-hi);
+  margin:0 0 1rem;
+  text-wrap:balance;
+}
+h2{
+  font-family:var(--display);
+  font-weight:700;
+  font-size:1.45rem;
+  letter-spacing:0.05em;
+  color:var(--brass-hi);
+  margin:2.6rem 0 0.6rem;
+  text-wrap:balance;
+}
+p{margin:0 0 1rem;}
+.lede{font-style:italic;font-size:1.35rem;color:#d8d0bd;}
+strong{color:#fff;font-weight:600;}
+
+/* The principle, set like a brass plaque */
+.law{
+  border:1px solid var(--brass);
+  border-radius:6px;
+  padding:1.2rem 1.4rem;
+  margin:1.4rem 0;
+  background:linear-gradient(180deg,#1a2531,var(--panel));
+  font-size:1.3rem;
+  text-align:center;
+}
+.formula{
+  font-family:var(--mono);
+  font-size:1.05rem;
+  color:var(--brass-hi);
+  margin-top:0.7rem;
+  letter-spacing:0.04em;
+}
+
+figure{margin:1.4rem 0;}
+figure svg, figure img{display:block;width:100%;max-width:100%;height:auto;border-radius:6px;border:1px solid var(--line);background:#0d1b27;}
+figcaption{font-family:var(--mono);font-size:0.72rem;letter-spacing:0.04em;color:var(--fog);margin-top:0.5rem;line-height:1.5;}
+
+/* Numbers table */
+.numbers{width:100%;border-collapse:collapse;margin:1rem 0 1.4rem;font-size:1.1rem;}
+.numbers td{padding:0.55rem 0.4rem;border-bottom:1px solid var(--line);vertical-align:top;}
+.numbers td:last-child{text-align:right;font-family:var(--mono);font-size:0.95rem;color:var(--brass-hi);white-space:nowrap;font-variant-numeric:tabular-nums;}
+.table-wrap{overflow-x:auto;}
+
+/* Flooding demo */
+.demo{border:1px solid var(--line);border-radius:6px;padding:1rem;background:var(--panel);margin:1.4rem 0;}
+.demo label{display:block;font-family:var(--mono);font-size:0.75rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--fog);margin:0.8rem 0 0.4rem;}
+.demo input[type=range]{width:100%;accent-color:var(--brass);height:2.2rem;}
+.status{font-size:1.15rem;margin:0.6rem 0 0;min-height:3.4em;}
+.status b{font-family:var(--mono);font-size:0.95rem;letter-spacing:0.06em;}
+.ok{color:#7fc49a;}
+.bad{color:#ff8f80;}
+/* Summary panel */
+.btn.sum{cursor:pointer;font:inherit;font-family:var(--mono);font-size:0.7rem;letter-spacing:0.14em;text-transform:uppercase;}
+.top-right{display:flex;gap:0.6rem;}
+.summary{
+  border:1px solid var(--line);
+  border-left:3px solid var(--brass);
+  border-radius:6px;
+  background:var(--panel);
+  padding:1rem 1.2rem 0.6rem;
+  margin:0 0 2rem;
+}
+.summary-label{font-family:var(--mono);font-size:0.68rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--fog);margin:0 0 0.6rem;}
+.summary p{margin:0 0 0.8rem;}
+.cursor{
+  display:inline-block;
+  width:0.55em;
+  height:1.05em;
+  margin-left:2px;
+  vertical-align:-0.15em;
+  background:var(--brass-hi);
+  animation:blink 1s steps(1) infinite;
+}
+@keyframes blink{50%{opacity:0;}}
+@media (prefers-reduced-motion: reduce){ .cursor{animation:none;} }
+@media (prefers-reduced-motion: no-preference){ #waterIn rect{transition:opacity 0.4s;} }
+/* (tabs not used on this page) */
+.tabs{display:flex;gap:0.4rem;margin:0 0 1.8rem;border-bottom:1px solid var(--line);flex-wrap:wrap;}
+.tab{
+  font-family:var(--mono);font-size:0.72rem;letter-spacing:0.12em;text-transform:uppercase;
+  color:var(--fog);background:none;border:1px solid transparent;border-bottom:none;
+  border-radius:6px 6px 0 0;padding:0.8rem 1rem;cursor:pointer;margin-bottom:-1px;min-height:44px;
+}
+.tab:hover,.tab:focus-visible{color:var(--brass-hi);outline:none;}
+.tab[aria-selected="true"]{color:var(--brass-hi);background:var(--panel);border-color:var(--line);}
+/* Sinking video player */
+.player{position:relative;border:1px solid var(--line);border-radius:6px;overflow:hidden;background:#000;aspect-ratio:16/9;max-width:100%;}
+.player video{display:block;width:100%;height:100%;object-fit:cover;background:#000;}
+.hud-clock{position:absolute;top:0.7rem;left:0.8rem;font-family:var(--mono);font-weight:700;font-size:1.1rem;letter-spacing:0.06em;color:var(--brass-hi);background:rgba(5,10,18,0.66);border:1px solid rgba(230,189,125,0.35);border-radius:4px;padding:0.25rem 0.6rem;font-variant-numeric:tabular-nums;pointer-events:none;}
+.hud-cap{position:absolute;left:0;right:0;bottom:0;padding:2.2rem 1rem 0.8rem;background:linear-gradient(0deg,rgba(3,7,12,0.88),rgba(3,7,12,0));font-size:1.15rem;line-height:1.4;color:#f1ead9;pointer-events:none;min-height:3em;}
+.hud-cap b{font-family:var(--mono);font-size:0.78rem;letter-spacing:0.1em;color:var(--brass-hi);margin-right:0.4rem;}
+.big-play{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-family:var(--display);font-weight:700;font-size:1.05rem;letter-spacing:0.1em;color:#1a130a;background:linear-gradient(180deg,var(--brass-hi),var(--brass));border:none;border-radius:4px;padding:0.9rem 1.6rem;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,0.5);min-height:48px;}
+.big-play[hidden]{display:none;}
+.loading{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-family:var(--mono);font-size:0.8rem;letter-spacing:0.18em;color:var(--fog);background:rgba(5,10,18,0.7);padding:0.5rem 0.9rem;border-radius:4px;}
+.loading[hidden]{display:none;}
+.player-controls{display:flex;align-items:center;gap:0.6rem;margin-top:0.6rem;flex-wrap:wrap;}
+.player-controls .btn{cursor:pointer;min-height:44px;}
+.player-controls input[type=range]{flex:1 1 12rem;min-width:0;accent-color:var(--brass);height:2.2rem;}
+.time-lbl{font-family:var(--mono);font-size:0.75rem;color:var(--fog);font-variant-numeric:tabular-nums;}
+.note{font-size:1rem;color:var(--fog);}
+@media (max-width:560px){ .hud-cap{font-size:0.95rem;padding:1.4rem 0.7rem 0.6rem;} .hud-clock{font-size:0.9rem;} }
+
+.next{margin-top:2.4rem;}
+/* Block vs Titanic comparison */
+.compare-captions{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2fr);gap:1.2rem;margin-top:0.8rem;}
+.compare-captions div{min-width:0;}
+.compare-captions p{margin:0 0 0.3rem;font-size:1.1rem;line-height:1.4;}
+.cap-head{font-family:var(--mono);font-weight:700;font-size:0.8rem !important;letter-spacing:0.14em;text-transform:uppercase;color:var(--brass-hi);}
+@media (max-width:560px){ .compare-captions{grid-template-columns:1fr;} }
+</style>
+</head>
+<body>
+<main class="wrap">
+
+  <div class="top">
+    <a class="btn" href="index.html">⟵ Home</a>
+    <div class="top-right">
+      <button class="btn sum" id="sumBtn" type="button" aria-expanded="false" aria-controls="summary">Summarize</button>
+      <a class="btn" href="archimedes.html">Why she floated</a>
+    </div>
+  </div>
+
+  <section class="summary" id="summary" hidden aria-live="polite">
+    <p class="summary-label">Summary</p>
+    <div id="sumText"></div>
+  </section>
+
+    <p class="eyebrow">2:18 am · 15 April 1912</p>
+    <h1>Why She Broke Apart</h1>
+    <p class="lede">For over 70 years people argued about whether Titanic sank in one piece. The wreck, found in 1985, settled it: she broke in two. Watch it happen, then see why.</p>
+
+    <div class="player" id="player">
+      <video id="sinkVideo" playsinline muted preload="none" poster="breakup-poster.jpg" aria-label="Animation of Titanic hitting the iceberg, breaking apart and sinking"></video>
+      <div class="hud-clock" id="sinkClock" aria-hidden="true">11:40 PM</div>
+      <div class="hud-cap" id="sinkCap" aria-live="polite"></div>
+      <button class="big-play" id="bigPlay" type="button">▶ Play the sinking</button>
+      <div class="loading" id="sinkLoading" hidden>LOADING…</div>
+    </div>
+    <div class="player-controls">
+      <button class="btn" id="playBtn" type="button">Play</button>
+      <button class="btn" id="restartBtn" type="button">Restart</button>
+      <input type="range" id="scrub" min="0" max="1000" value="0" aria-label="Position in the animation">
+      <span class="time-lbl" id="timeLbl">0:00 / 0:44</span>
+    </div>
+    <p class="note">Animation made in Blender for this project and sped up to 44 seconds. The real sinking took 2 hours and 40 minutes.</p>
+
+    <h2>Water only holds up what is in the water</h2>
+    <p>Archimedes’ principle works only on the parts of a ship that are under the surface. As the flooded bow sank, the stern rose higher and higher into the air, and the part above the water got <strong>no upward push from the sea at all</strong>.</p>
+
+    <figure>
+      <svg viewBox="0 0 1000 300" role="img" aria-label="Titanic tilted bow-down: the bow is underwater and held up by the sea, the stern hangs in the air, and the hull cracks near the waterline">
+        <rect width="1000" height="300" fill="#1b2d40"/>
+        <rect x="0" y="140" width="1000" height="160" fill="#1d4a66"/>
+        <rect x="0" y="138.5" width="1000" height="3" fill="#3f86ad"/>
+        <g transform="rotate(11.7 100 70)">
+          <rect x="100" y="52" width="840" height="36" rx="6" fill="#161a1e" stroke="#9aa6af" stroke-width="2"/>
+          <rect x="100" y="44" width="840" height="9" fill="#d9d4c8"/>
+          <g fill="#c79a3a"><rect x="345" y="12" width="20" height="32"/><rect x="460" y="12" width="20" height="32"/><rect x="575" y="12" width="20" height="32"/><rect x="690" y="12" width="20" height="32"/></g>
+          <g fill="#111"><rect x="345" y="12" width="20" height="7"/><rect x="460" y="12" width="20" height="7"/><rect x="575" y="12" width="20" height="7"/><rect x="690" y="12" width="20" height="7"/></g>
+          <polyline points="408,40 418,52 404,62 420,74 406,88" fill="none" stroke="#ff7b5c" stroke-width="4" stroke-linejoin="round"/>
+        </g>
+        <rect x="0" y="140" width="1000" height="160" fill="#1d4a66" opacity="0.55"/>
+        <!-- weight of the raised stern, nothing below it -->
+        <polygon fill="#e0574a" points="216,108 226,108 226,186 238,186 221,214 204,186 216,186"/>
+        <!-- buoyancy only under the submerged part -->
+        <polygon fill="#7fc49a" points="560,292 570,292 570,214 582,214 565,186 548,214 560,214"/>
+        <polygon fill="#7fc49a" points="700,292 710,292 710,240 722,240 705,212 688,240 700,240"/>
+        <polygon fill="#7fc49a" points="840,292 850,292 850,268 862,268 845,240 828,268 840,268"/>
+        <text x="24" y="40" fill="#ece3d0" font-family="Cormorant Garamond, Georgia, serif" font-size="22">Stern: in the air, nothing holding it up</text>
+        <text x="976" y="40" fill="#ece3d0" font-family="Cormorant Garamond, Georgia, serif" font-size="22" text-anchor="end">Bow: flooded, but held up by the sea</text>
+        <line x1="400" y1="186" x2="406" y2="140" stroke="#ff9b8e" stroke-width="2"/>
+        <text x="392" y="204" fill="#ff9b8e" font-family="Space Mono, monospace" font-size="15" text-anchor="end">hull bends</text>
+        <text x="392" y="224" fill="#ff9b8e" font-family="Space Mono, monospace" font-size="15" text-anchor="end">and tears here</text>
+        <text x="24" y="282" fill="#cfe3ee" font-family="Space Mono, monospace" font-size="15">STERN</text>
+        <text x="976" y="282" fill="#cfe3ee" font-family="Space Mono, monospace" font-size="15" text-anchor="end">BOW</text>
+      </svg>
+      <figcaption>Red: the weight of the raised stern, with nothing beneath it. Green: the sea pushing up, but only on the part of the ship that is underwater. The hull is bent between the two, near the waterline.</figcaption>
+    </figure>
+
+    <h2>Like a heavy plank over the edge of a table</h2>
+    <p>The raised stern weighed thousands of tonnes and hung out over the water like a heavy plank sticking out over the edge of a table. The further it stuck out, the stronger its bending effect, because <strong>turning effect = force × distance</strong>.</p>
+    <p>That bending was strongest near the waterline, roughly between the third and fourth funnels. Steel can only take so much, and at about 2:18 am the hull there tore apart. The bow broke away and sank. The stern briefly settled back, filled with water, rose until it was almost vertical, and slipped under at 2:20 am.</p>
+
+    <h2>What the wreck tells us</h2>
+    <p>Robert Ballard’s team found the wreck in 1985, about 3,800 m down, in two main pieces lying around 600 m apart. Many experts now think she broke while the stern was raised only about 15–25°, far less steep than the 45° shown in many old paintings.</p>
+
+  <p class="next"><a class="btn" href="archimedes.html">⟵ Back: Why she floated</a></p>
+</main>
+
+<script>
+// ---------- Sinking video: clock and captions follow the animation ----------
+(function(){
+  var VIDEO_URLS = [
+    'https://cdn.jsdelivr.net/gh/aaravvedham/titanic-khoj-website@main/breakup.mp4',  // fast copy
+    'breakup.mp4'                                                                     // fallback: the file next to this page
+  ];
+  // [seconds into the video, minutes after 11:40 pm]
+  var CLOCK = [[0,0],[6.4,0],[13.73,110],[16.4,125],[19.07,140],[21.07,145],[24.8,157],[25.6,158],[32.4,159],[37.73,160],[44.1,160]];
+  // [seconds into the video, caption]
+  var CAPS = [
+    [0,     'Titanic steams ahead at about 22 knots. The lookouts spot the iceberg too late.'],
+    [2.4,   'The iceberg scrapes along the starboard bow, opening six thin seams below the waterline.'],
+    [6.4,   'The ship stops. Water pours into the bow compartments and the bow slowly settles lower.'],
+    [13.73, 'The bow sinks faster. Water floods over the forward deck, then reaches the bridge.'],
+    [21.07, 'The stern rises out of the sea. With nothing holding it up, its weight bends the hull.'],
+    [24.8,  'The lights flicker and go out.'],
+    [25.6,  'The hull tears apart between the third and fourth funnels. The bow breaks away and sinks.'],
+    [30,    'The stern settles back, fills with water, and rises until it is almost vertical.'],
+    [37.73, 'The stern slides beneath the surface.'],
+    [41.07, 'Titanic is gone. About 1,500 people are lost; about 710 are later rescued by Carpathia.']
+  ];
+  var v = document.getElementById('sinkVideo');
+  var clockEl = document.getElementById('sinkClock');
+  var capEl = document.getElementById('sinkCap');
+  var big = document.getElementById('bigPlay');
+  var playBtn = document.getElementById('playBtn');
+  var restartBtn = document.getElementById('restartBtn');
+  var scrub = document.getElementById('scrub');
+  var timeLbl = document.getElementById('timeLbl');
+  var loading = document.getElementById('sinkLoading');
+  var urlIndex = -1, raf = null, lastCap = -1;
+
+  function loadNext(){
+    urlIndex++;
+    if(urlIndex >= VIDEO_URLS.length){ loading.hidden = false; loading.textContent = 'VIDEO NOT FOUND'; return; }
+    v.src = VIDEO_URLS[urlIndex]; v.load();
+  }
+  v.addEventListener('error', function(){ if(urlIndex >= 0) loadNext(); });
+
+  function minutesAt(t){
+    for(var i = 1; i < CLOCK.length; i++){
+      if(t <= CLOCK[i][0]){
+        var a = CLOCK[i-1], b = CLOCK[i];
+        return a[1] + (b[1] - a[1]) * (t - a[0]) / (b[0] - a[0]);
+      }
+    }
+    return CLOCK[CLOCK.length - 1][1];
+  }
+  function clockText(min){
+    var total = 23*60 + 40 + Math.floor(min);
+    var h = Math.floor(total / 60) % 24, m = total % 60;
+    var ampm = h >= 12 ? 'PM' : 'AM', h12 = h % 12 || 12;
+    return h12 + ':' + (m < 10 ? '0' : '') + m + ' ' + ampm;
+  }
+  function fmt(s){ s = Math.max(0, Math.floor(s)); return Math.floor(s/60) + ':' + (s%60 < 10 ? '0' : '') + (s%60); }
+  function update(){
+    var t = v.currentTime || 0, d = v.duration || 44.1;
+    var c = clockText(minutesAt(t));
+    if(clockEl.textContent !== c) clockEl.textContent = c;
+    var k = 0; for(var i = 0; i < CAPS.length; i++) if(t >= CAPS[i][0]) k = i;
+    if(k !== lastCap){ lastCap = k; capEl.innerHTML = '<b>' + c + '</b>' + CAPS[k][1]; }
+    else { var b = capEl.querySelector('b'); if(b && b.textContent !== c) b.textContent = c; }
+    if(document.activeElement !== scrub) scrub.value = Math.round(t / d * 1000);
+    timeLbl.textContent = fmt(t) + ' / ' + fmt(d);
+  }
+  function loop(){ update(); if(!v.paused && !v.ended) raf = requestAnimationFrame(loop); else raf = null; }
+
+  function play(){
+    if(urlIndex < 0) loadNext();
+    big.hidden = true;
+    var p = v.play();
+    if(p && p.catch) p.catch(function(){ big.hidden = false; });
+  }
+  big.addEventListener('click', play);
+  playBtn.addEventListener('click', function(){ if(v.paused || v.ended) play(); else v.pause(); });
+  restartBtn.addEventListener('click', function(){ if(urlIndex < 0) loadNext(); v.currentTime = 0; play(); });
+  scrub.addEventListener('input', function(){
+    if(urlIndex < 0) loadNext();
+    if(v.duration) { v.currentTime = scrub.value / 1000 * v.duration; update(); }
+  });
+  v.addEventListener('play', function(){ playBtn.textContent = 'Pause'; if(!raf) raf = requestAnimationFrame(loop); });
+  v.addEventListener('pause', function(){ playBtn.textContent = 'Play'; update(); });
+  v.addEventListener('ended', function(){ playBtn.textContent = 'Play again'; big.hidden = false; big.textContent = '▶ Watch again'; update(); });
+  v.addEventListener('waiting', function(){ loading.hidden = false; loading.textContent = 'LOADING…'; });
+  v.addEventListener('playing', function(){ loading.hidden = true; });
+  v.addEventListener('seeked', update);
+  v.addEventListener('loadedmetadata', update);
+  update();
+})();
+
+// ---------- Summarize: types out a short summary with a blinking cursor ----------
+(function(){
+  var SUMMARIES = {float: [
+    'Archimedes’ principle: water pushes up on any object with a force equal to the weight of the water the object pushes aside.',
+    'Titanic floated because her steel hull was full of air. She sank about 10.5 m into the sea, pushing aside roughly 50,700 m³ of seawater, which weighed the same as her 52,000 tonnes.',
+    'She could survive four flooded compartments at the bow, but the iceberg opened six. Seawater replaced air, the bow sank lower, and water spilled over the bulkheads from one compartment to the next until she went down.'
+  ], breakup: [
+    'As the flooded bow sank, the stern rose out of the sea. Archimedes’ principle only pushes up on the parts of a ship that are in the water, so the raised stern had nothing holding it up.',
+    'Its weight bent the hull like a heavy plank sticking out over the edge of a table. At about 2:18 am the hull tore apart between the third and fourth funnels.',
+    'The bow sank first. The stern settled back, rose almost vertical and sank at 2:20 am. The wreck, found in 1985, lies 3,800 m down in two pieces about 600 m apart.'
+  ]};
+  var SUMMARY = SUMMARIES.breakup;
+  var btn = document.getElementById('sumBtn');
+  var panel = document.getElementById('summary');
+  var out = document.getElementById('sumText');
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var running = null;
+
+  function cursor(){ var c = document.createElement('span'); c.className = 'cursor'; c.setAttribute('aria-hidden','true'); return c; }
+
+  function generate(){
+    out.textContent = '';
+    var cur = cursor();
+    var para = document.createElement('p');
+    para.appendChild(cur);
+    out.appendChild(para);
+    if(reduce){
+      out.innerHTML = SUMMARY.map(function(t){ return '<p>' + t + '</p>'; }).join('');
+      return;
+    }
+    var pi = 0, words = SUMMARY[0].split(' '), wi = 0;
+    var token = {};
+    running = token;
+    function step(){
+      if(running !== token) return;
+      if(wi < words.length){
+        cur.insertAdjacentText('beforebegin', (wi ? ' ' : '') + words[wi]);
+        wi++;
+        var w = words[wi - 1];
+        // short pause after punctuation, otherwise a quick, slightly uneven pace
+        var delay = /[.,:;]$/.test(w) ? 180 + Math.random()*160 : 35 + Math.random()*70;
+        setTimeout(step, delay);
+      } else if(pi < SUMMARY.length - 1){
+        pi++; words = SUMMARY[pi].split(' '); wi = 0;
+        para = document.createElement('p');
+        para.appendChild(cur);
+        out.appendChild(para);
+        setTimeout(step, 350);
+      } else {
+        setTimeout(function(){ if(running === token) cur.remove(); }, 2200);
+        running = null;
+      }
+    }
+    setTimeout(step, 1100);   // "thinking": just the blinking cursor for a moment
+  }
+
+  btn.addEventListener('click', function(){
+    if(panel.hidden){
+      panel.hidden = false;
+      btn.textContent = 'Hide summary';
+      btn.setAttribute('aria-expanded','true');
+      generate();
+      panel.scrollIntoView({behavior: reduce ? 'auto' : 'smooth', block:'nearest'});
+    } else {
+      panel.hidden = true;
+      running = null;
+      btn.textContent = 'Summarize';
+      btn.setAttribute('aria-expanded','false');
+    }
+  });
+})();
+</script>
+</body>
+</html>
