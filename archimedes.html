@@ -147,7 +147,13 @@ figcaption{font-family:var(--mono);font-size:0.72rem;letter-spacing:0.04em;color
 }
 @keyframes blink{50%{opacity:0;}}
 @media (prefers-reduced-motion: reduce){ .cursor{animation:none;} }
-@media (prefers-reduced-motion: no-preference){ #ship{transition:transform 0.6s ease;} #waterIn rect{transition:opacity 0.4s;} }
+@media (prefers-reduced-motion: no-preference){ #waterIn rect{transition:opacity 0.4s;} }
+/* Block vs Titanic comparison */
+.compare-captions{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2fr);gap:1.2rem;margin-top:0.8rem;}
+.compare-captions div{min-width:0;}
+.compare-captions p{margin:0 0 0.3rem;font-size:1.1rem;line-height:1.4;}
+.cap-head{font-family:var(--mono);font-weight:700;font-size:0.8rem !important;letter-spacing:0.14em;text-transform:uppercase;color:var(--brass-hi);}
+@media (max-width:560px){ .compare-captions{grid-template-columns:1fr;} }
 </style>
 </head>
 <body>
@@ -180,32 +186,42 @@ figcaption{font-family:var(--mono);font-size:0.72rem;letter-spacing:0.04em;color
 
   <p>When you lower something into water, it shoves water out of the way. That displaced water wants its place back, so it pushes up on the object. If the push is as big as the object’s weight before it’s fully underwater, the object <strong>floats</strong>. If not, it <strong>sinks</strong>.</p>
 
-  <figure>
-    <svg viewBox="0 0 640 300" role="img" aria-label="A steel block sinks while a steel bowl of the same weight floats">
-      <rect x="0" y="130" width="640" height="170" fill="#1d4a66"/>
-      <line x1="0" y1="130" x2="640" y2="130" stroke="#3f86ad" stroke-width="2"/>
-      <!-- solid block -->
-      <text x="160" y="40" fill="#e6bd7d" font-family="Space Mono, monospace" font-size="15" text-anchor="middle">SOLID STEEL BLOCK</text>
-      <rect x="130" y="235" width="60" height="45" fill="#5b6670" stroke="#9aa6af"/>
-      <line x1="160" y1="225" x2="160" y2="180" stroke="#d1483a" stroke-width="4" marker-end="url(#down)"/>
-      <line x1="200" y1="270" x2="200" y2="240" stroke="#7fc49a" stroke-width="3" marker-end="url(#up)"/>
-      <text x="160" y="72" fill="#ece3d0" font-family="Cormorant Garamond, serif" font-size="18" text-anchor="middle">pushes aside very little water</text>
-      <text x="160" y="94" fill="#ff8f80" font-family="Cormorant Garamond, serif" font-size="18" text-anchor="middle">weight wins, so it sinks</text>
-      <!-- bowl -->
-      <text x="470" y="40" fill="#e6bd7d" font-family="Space Mono, monospace" font-size="15" text-anchor="middle">SAME STEEL, BOWL SHAPE</text>
-      <path d="M380 112 L560 112 L540 160 L400 160 Z" fill="#5b6670" stroke="#9aa6af"/>
-      <path d="M392 118 L548 118 L532 154 L408 154 Z" fill="#0d1b27"/>
-      <rect x="400" y="130" width="140" height="30" fill="#3f86ad" opacity="0.35"/>
-      <line x1="470" y1="190" x2="470" y2="166" stroke="#7fc49a" stroke-width="5" marker-end="url(#up)"/>
-      <text x="470" y="72" fill="#ece3d0" font-family="Cormorant Garamond, serif" font-size="18" text-anchor="middle">pushes aside lots of water</text>
-      <text x="470" y="94" fill="#7fc49a" font-family="Cormorant Garamond, serif" font-size="18" text-anchor="middle">buoyancy wins, so it floats</text>
-      <text x="470" y="215" fill="#cfe3ee" font-family="Space Mono, monospace" font-size="13" text-anchor="middle">shaded = water pushed aside</text>
+  <figure class="compare">
+    <svg viewBox="0 0 1000 380" role="img" aria-label="A solid steel block with Titanic's weight sinks, while Titanic herself floats. Both drawn to the same scale.">
       <defs>
-        <marker id="up" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#7fc49a"/></marker>
-        <marker id="down" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#d1483a"/></marker>
+        <!-- the ship's own outline, used to colour only the part of the hull under water -->
+        <mask id="hullShape" maskUnits="userSpaceOnUse" x="0" y="0" width="1000" height="380" style="mask-type:alpha">
+          <image href="titanic-side.png" x="360" y="113.5" width="625" height="164"/>
+        </mask>
       </defs>
+      <rect width="1000" height="380" fill="#0d1b27"/>
+      <rect x="0" y="0" width="1000" height="250" fill="#1b2d40"/>
+      <image href="titanic-side.png" x="360" y="113.5" width="625" height="164"/>
+      <rect x="0" y="250" width="1000" height="130" fill="#1d4a66" opacity="0.72"/>
+      <rect x="360" y="250" width="625" height="40" fill="#6fb6dd" opacity="0.5" mask="url(#hullShape)"/>
+      <rect x="0" y="248.5" width="1000" height="3" fill="#3f86ad"/>
+      <!-- solid block: 52,000 t of steel = about 6,600 m³, a cube about 19 m on each side, same scale as the ship -->
+      <rect x="149" y="316" width="42" height="42" fill="#5b6670" stroke="#9aa6af" stroke-width="2"/>
+      <polygon fill="#e0574a" points="212,318 220,318 220,352 228,352 216,374 204,352 212,352"/>
+      <polygon fill="#7fc49a" points="124,358 132,358 132,342 140,342 128,326 116,342 124,342"/>
+      <!-- Titanic: weight and buoyancy equal, because she floats -->
+      <polygon fill="#e0574a" points="668,256 676,256 676,350 686,350 672,374 658,350 668,350"/>
+      <polygon fill="#7fc49a" points="712,374 720,374 720,280 730,280 716,256 702,280 712,280"/>
+      <text x="24" y="40" fill="#8fa9b8" font-family="Space Mono, monospace" font-size="17" letter-spacing="1">block and ship drawn to the same scale</text>
     </svg>
-    <figcaption>Red arrow: weight. Green arrow: buoyant force. Shaping the same steel into a hollow bowl lets it push aside far more water.</figcaption>
+    <div class="compare-captions">
+      <div>
+        <p class="cap-head">One solid steel block</p>
+        <p>The same 52,000 tonnes as Titanic, squashed into a cube only <strong>6,600 m³</strong> in size.</p>
+        <p class="bad">Pushes aside 6,600 m³ of sea: it sinks.</p>
+      </div>
+      <div>
+        <p class="cap-head">R.M.S. Titanic</p>
+        <p>The same 52,000 tonnes of steel, shaped into a huge hull full of air.</p>
+        <p class="ok">Pushes aside 50,700 m³ of sea: she floats.</p>
+      </div>
+    </div>
+    <figcaption>Red arrows: weight. Green arrows: buoyant force. The block’s buoyancy is far smaller than its weight, so it sinks. Titanic’s two forces are equal, so she floats. The light blue part of her hull is the water she pushes aside.</figcaption>
   </figure>
 
   <h2>How a steel ship floats</h2>
@@ -235,24 +251,28 @@ figcaption{font-family:var(--mono);font-size:0.72rem;letter-spacing:0.04em;color
   <p>The bulkheads didn’t reach all the way to the top deck. As the bow dropped, water rose over the top of one bulkhead and spilled into the next compartment, then the next, like water filling an ice-cube tray tipped at one end. Once that started, sinking couldn’t be stopped.</p>
 
   <div class="demo">
-    <svg viewBox="0 0 800 260" role="img" aria-label="Side view of Titanic with flooded compartments" id="demoSvg">
-      <rect x="0" y="0" width="800" height="260" fill="#0d1b27"/>
+    <svg viewBox="0 0 1000 330" role="img" aria-label="Side view of Titanic with flooded compartments" id="demoSvg">
+      <defs>
+        <mask id="hullMask" maskUnits="userSpaceOnUse" x="-200" y="-200" width="1400" height="800" style="mask-type:alpha">
+          <image href="titanic-side.png" x="40" y="9" width="920" height="241.5"/>
+        </mask>
+        <!-- keeps flood water below the sea level, which stays level while the ship tilts -->
+        <clipPath id="belowSea" clipPathUnits="userSpaceOnUse">
+          <rect id="seaClip" x="-600" y="210" width="2200" height="900"/>
+        </clipPath>
+      </defs>
+      <rect width="1000" height="330" fill="#1b2d40"/>
       <g id="ship">
-        <!-- hull side view: stern on the left, bow on the right -->
-        <path d="M60 90 L740 90 L760 92 L735 190 L120 190 Q70 185 55 140 Z" fill="#141414" stroke="#6b7680" stroke-width="1.5"/>
-        <rect x="80" y="70" width="640" height="20" fill="#d9d4c8"/>
-        <g fill="#c79a3a">
-          <rect x="250" y="25" width="22" height="45"/><rect x="340" y="25" width="22" height="45"/>
-          <rect x="430" y="25" width="22" height="45"/><rect x="520" y="25" width="22" height="45"/>
+        <image href="titanic-side.png" x="40" y="9" width="920" height="241.5"/>
+        <g mask="url(#hullMask)">
+          <g id="waterIn" clip-path="url(#belowSea)"></g>
+          <g id="bulkheads" stroke="#d7e6ee" stroke-width="2" opacity="0.55"></g>
         </g>
-        <g fill="#111"><rect x="250" y="25" width="22" height="9"/><rect x="340" y="25" width="22" height="9"/><rect x="430" y="25" width="22" height="9"/><rect x="520" y="25" width="22" height="9"/></g>
-        <g id="waterIn"></g>
-        <g id="bulkheads" stroke="#8aa0ad" stroke-width="1.5"></g>
       </g>
-      <rect id="seaRect" x="0" y="150" width="800" height="110" fill="#1d4a66" opacity="0.88"/>
-      <line x1="0" y1="150" x2="800" y2="150" stroke="#3f86ad" stroke-width="2"/>
-      <text x="20" y="245" fill="#cfe3ee" font-family="Space Mono, monospace" font-size="13">STERN</text>
-      <text x="780" y="245" fill="#cfe3ee" font-family="Space Mono, monospace" font-size="13" text-anchor="end">BOW</text>
+      <rect x="0" y="210" width="1000" height="120" fill="#1d4a66" opacity="0.74"/>
+      <rect x="0" y="208.5" width="1000" height="3" fill="#3f86ad"/>
+      <text x="20" y="316" fill="#cfe3ee" font-family="Space Mono, monospace" font-size="15">STERN</text>
+      <text x="980" y="316" fill="#cfe3ee" font-family="Space Mono, monospace" font-size="15" text-anchor="end">BOW</text>
     </svg>
     <label for="flood">Flooded compartments at the bow: <span id="floodN">0</span></label>
     <input type="range" id="flood" min="0" max="6" step="1" value="0">
@@ -267,54 +287,77 @@ figcaption{font-family:var(--mono);font-size:0.72rem;letter-spacing:0.04em;color
 
 <script>
 (function(){
-  // 16 compartments, stern (left) to bow (right). Bulkhead tops stop below the deck.
-  var x0 = 70, x1 = 745, n = 16;
-  var w = (x1 - x0) / n;
+  // Drawing scale: the side view covers 282 m of ship (x = -6 m to 276 m) across 920 units.
+  var U = 920 / 282;
+  function X(m){ return 40 + (m + 6) * U; }          // metres along the ship -> drawing x
+  function Y(m){ return 9 + (46 - m) * U; }          // metres up -> drawing y (waterline is -15.6 m = y 210)
+  // 15 watertight bulkheads (simplified positions, metres from the stern), making 16 compartments
+  var bulkheads = [20, 37, 53, 70, 87, 103, 120, 137, 155, 172, 190, 207, 224, 239, 254];
+  var edges = [-4].concat(bulkheads, [270]);
+  var TOP = -3, KEEL = -26.6;                         // bulkhead tops stop well below the upper decks
+  var NS = 'http://www.w3.org/2000/svg';
   var bh = document.getElementById('bulkheads');
   var wi = document.getElementById('waterIn');
   var cells = [];
-  for(var i = 0; i < n; i++){
-    var x = x0 + i * w;
-    if(i > 0){
-      var l = document.createElementNS('http://www.w3.org/2000/svg','line');
-      l.setAttribute('x1', x); l.setAttribute('x2', x);
-      l.setAttribute('y1', 112); l.setAttribute('y2', 188);   // bulkhead stops short of the deck
-      bh.appendChild(l);
-    }
-    var r = document.createElementNS('http://www.w3.org/2000/svg','rect');
-    r.setAttribute('x', x + 1); r.setAttribute('width', w - 2);
-    r.setAttribute('y', 112); r.setAttribute('height', 76);
-    r.setAttribute('fill', '#3f86ad'); r.setAttribute('opacity', '0');
-    wi.appendChild(r);
-    cells.push(r);
+  for(var i = 0; i < edges.length - 1; i++){
+    var r = document.createElementNS(NS, 'rect');
+    r.setAttribute('x', X(edges[i])); r.setAttribute('width', X(edges[i+1]) - X(edges[i]));
+    r.setAttribute('y', Y(TOP)); r.setAttribute('height', Y(KEEL) - Y(TOP));
+    r.setAttribute('fill', '#7cc8f0'); r.setAttribute('opacity', '0');
+    wi.appendChild(r); cells.push(r);
   }
+  bulkheads.forEach(function(b){
+    var l = document.createElementNS(NS, 'line');
+    l.setAttribute('x1', X(b)); l.setAttribute('x2', X(b));
+    l.setAttribute('y1', Y(TOP)); l.setAttribute('y2', Y(KEEL));
+    bh.appendChild(l);
+  });
 
   // How far the ship sinks and tilts for each number of flooded bow compartments (illustrative)
-  var drop  = [0, 3, 6, 9, 12, 16, 20];
-  var tilt  = [0, 0.8, 1.6, 2.5, 3.4, 6.5, 10];
+  var drop  = [0, 2, 4, 6, 9, 12, 16];
+  var tilt  = [0, 0.6, 1.2, 1.9, 2.6, 4.6, 7];
+  var PX = X(-4), PY = 210;                           // tilt around the stern, at the waterline
   var notes = [
     '<b class="ok">AFLOAT</b> No damage. The ship pushes aside about 50,700 m³ of seawater, exactly her own weight.',
     '<b class="ok">AFLOAT</b> One compartment flooded. The bow sits a little lower, but she is safe.',
     '<b class="ok">AFLOAT</b> Two compartments flooded. Titanic was designed to survive this anywhere along her length.',
     '<b class="ok">AFLOAT</b> Three bow compartments flooded. Lower at the bow, still safe.',
-    '<b class="ok">AFLOAT, JUST</b> Four bow compartments flooded: the most the design could survive. The water stays below the tops of the bulkheads.',
+    '<b class="ok">AFLOAT, JUST</b> Four bow compartments flooded: the most the design could survive. The sea comes right up to the top of the next bulkhead, but not over it.',
     '<b class="bad">SINKING</b> Five flooded. The bow drops so far that water spills over the top of the next bulkhead.',
     '<b class="bad">SINKING</b> Six flooded, as on the night. Water spills from compartment to compartment and the ship cannot be saved.'
   ];
 
   var slider = document.getElementById('flood');
   var ship = document.getElementById('ship');
+  var seaClip = document.getElementById('seaClip');
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var cur = {d:0, t:0}, anim = null;
+
+  function place(d, t){
+    ship.setAttribute('transform', 'translate(0 ' + d + ') rotate(' + t + ' ' + PX + ' ' + PY + ')');
+    // the clip rectangle is drawn in the ship's own (tilted) coordinates, so undo the tilt to keep the sea level flat
+    seaClip.setAttribute('transform', 'rotate(' + (-t) + ' ' + PX + ' ' + PY + ') translate(0 ' + (-d) + ')');
+  }
   function show(k){
-    for(var i = 0; i < n; i++){
-      cells[i].setAttribute('opacity', i >= n - k ? '0.75' : '0');
-    }
-    // spill-over: with 5+ flooded, water starts creeping into the next compartments too
-    if(k >= 5){ for(var j = 1; j <= k - 4; j++){ var c = cells[n - k - j]; if(c) c.setAttribute('opacity', '0.4'); } }
-    ship.setAttribute('transform', 'translate(0 ' + drop[k] + ') rotate(' + tilt[k] + ' 120 150)');
+    var n = cells.length;
+    for(var i = 0; i < n; i++) cells[i].setAttribute('opacity', i >= n - k ? '0.85' : '0');
+    if(k >= 5){ for(var j = 1; j <= k - 4; j++){ var c = cells[n - k - j]; if(c) c.setAttribute('opacity', '0.45'); } }
     document.getElementById('floodN').textContent = k;
     document.getElementById('status').innerHTML = notes[k];
+    var from = {d:cur.d, t:cur.t}, to = {d:drop[k], t:tilt[k]}, start = null;
+    if(anim) cancelAnimationFrame(anim);
+    if(reduce){ cur = to; place(to.d, to.t); return; }
+    function step(ts){
+      if(start === null) start = ts;
+      var p = Math.min(1, (ts - start) / 600), e = p < 0.5 ? 2*p*p : 1 - Math.pow(-2*p + 2, 2)/2;
+      cur = {d: from.d + (to.d - from.d)*e, t: from.t + (to.t - from.t)*e};
+      place(cur.d, cur.t);
+      if(p < 1) anim = requestAnimationFrame(step);
+    }
+    anim = requestAnimationFrame(step);
   }
   slider.addEventListener('input', function(){ show(+slider.value); });
+  place(0, 0);
   show(0);
 })();
 
