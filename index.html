@@ -169,10 +169,11 @@ h1{
 /* Below the waterline: the two doors */
 .doors{
   display:grid;
-  grid-template-columns:repeat(3, minmax(0, 1fr));
+  grid-template-columns:repeat(4, minmax(0, 1fr));
   gap:1.4rem;
   padding-block:2.4rem 2rem;
 }
+@media (max-width:1300px){ .doors{grid-template-columns:repeat(2, minmax(0, 1fr));} }
 .door{
   position:relative;
   display:flex;
@@ -369,6 +370,12 @@ h1{
     <h2>Why She Floated</h2>
     <p>How 52,000 tonnes of steel stayed afloat, and why six flooded compartments were one too many.</p>
     <span class="door-go">Read and try it</span>
+    </a>
+    <a class="door" href="breakup.html">
+      <span class="door-kind">Animation · 1 minute watch</span>
+      <h2>Why She Broke Apart</h2>
+      <p>Watch her sink, and see why the stern’s own weight tore the hull in two at 2:18 am.</p>
+      <span class="door-go">Watch and learn</span>
     </a>
   </section>
 
