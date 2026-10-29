@@ -1,7 +1,7 @@
 {
   "name": "The Unsinkable: Myth of Titanic",
   "short_name": "Titanic",
-  "description": "Steer R.M.S. Titanic past the iceberg, explore the ship in 3D, and learn why she sank.",
+  "description": "Steer Titanic past the iceberg, explore the ship in 3D, and learn why she sank.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
