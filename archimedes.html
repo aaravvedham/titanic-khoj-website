@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Why Titanic Floated, and Why She Sank</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Space+Mono:wght@400;700&display=swap">
+<style>
+/* Same night-time look as the rest of the site */
+:root{
+  --night:#08131d;
+  --panel:#111c27;
+  --line:#2c3d4d;
+  --brass:#b9905a;
+  --brass-hi:#e6bd7d;
+  --ivory:#ece3d0;
+  --fog:#8fa9b8;
+  --sea:#1d4a66;
+  --sea-hi:#3f86ad;
+  --alarm:#d1483a;
+  --display:'Cinzel', 'Times New Roman', serif;
+  --body:'Cormorant Garamond', Georgia, serif;
+  --mono:'Space Mono', ui-monospace, 'Courier New', monospace;
+  color-scheme:dark;
+  font-size:clamp(16px, 1vw, 30px);
+}
+*{box-sizing:border-box;}
+body{
+  margin:0;
+  background:var(--night);
+  color:var(--ivory);
+  font-family:var(--body);
+  font-size:1.2rem;
+  line-height:1.55;
+}
+.wrap{
+  max-width:46rem;
+  margin:0 auto;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));
+  padding-right:max(16px, env(safe-area-inset-right, 0px));
+  padding-block:1.4rem 3rem;
+}
+.top{display:flex;justify-content:space-between;align-items:center;gap:1rem;margin-bottom:2rem;}
+.btn{
+  font-family:var(--mono);
+  font-size:0.7rem;
+  letter-spacing:0.14em;
+  text-transform:uppercase;
+  color:var(--ivory);
+  text-decoration:none;
+  border:1px solid var(--line);
+  border-radius:4px;
+  padding:0.7rem 1rem;
+  background:#16222d;
+}
+.btn:hover,.btn:focus-visible{border-color:var(--brass);color:var(--brass-hi);outline:none;}
+.eyebrow{
+  font-family:var(--mono);
+  font-size:0.7rem;
+  letter-spacing:0.24em;
+  text-transform:uppercase;
+  color:var(--fog);
+  margin:0 0 0.6rem;
+}
+h1{
+  font-family:var(--display);
+  font-weight:700;
+  font-size:clamp(1.8rem, 4.5vw, 2.8rem);
+  letter-spacing:0.06em;
+  line-height:1.15;
+  color:var(--brass-hi);
+  margin:0 0 1rem;
+  text-wrap:balance;
+}
+h2{
+  font-family:var(--display);
+  font-weight:700;
+  font-size:1.45rem;
+  letter-spacing:0.05em;
+  color:var(--brass-hi);
+  margin:2.6rem 0 0.6rem;
+  text-wrap:balance;
+}
+p{margin:0 0 1rem;}
+.lede{font-style:italic;font-size:1.35rem;color:#d8d0bd;}
+strong{color:#fff;font-weight:600;}
+
+/* The principle, set like a brass plaque */
+.law{
+  border:1px solid var(--brass);
+  border-radius:6px;
+  padding:1.2rem 1.4rem;
+  margin:1.4rem 0;
+  background:linear-gradient(180deg,#1a2531,var(--panel));
+  font-size:1.3rem;
+  text-align:center;
+}
+.formula{
+  font-family:var(--mono);
+  font-size:1.05rem;
+  color:var(--brass-hi);
+  margin-top:0.7rem;
+  letter-spacing:0.04em;
+}
+
+figure{margin:1.4rem 0;}
+figure svg, figure img{display:block;width:100%;max-width:100%;height:auto;border-radius:6px;border:1px solid var(--line);background:#0d1b27;}
+figcaption{font-family:var(--mono);font-size:0.72rem;letter-spacing:0.04em;color:var(--fog);margin-top:0.5rem;line-height:1.5;}
+
+/* Numbers table */
+.numbers{width:100%;border-collapse:collapse;margin:1rem 0 1.4rem;font-size:1.1rem;}
+.numbers td{padding:0.55rem 0.4rem;border-bottom:1px solid var(--line);vertical-align:top;}
+.numbers td:last-child{text-align:right;font-family:var(--mono);font-size:0.95rem;color:var(--brass-hi);white-space:nowrap;font-variant-numeric:tabular-nums;}
+.table-wrap{overflow-x:auto;}
+
+/* Flooding demo */
+.demo{border:1px solid var(--line);border-radius:6px;padding:1rem;background:var(--panel);margin:1.4rem 0;}
+.demo label{display:block;font-family:var(--mono);font-size:0.75rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--fog);margin:0.8rem 0 0.4rem;}
+.demo input[type=range]{width:100%;accent-color:var(--brass);height:2.2rem;}
+.status{font-size:1.15rem;margin:0.6rem 0 0;min-height:3.4em;}
+.status b{font-family:var(--mono);font-size:0.95rem;letter-spacing:0.06em;}
+.ok{color:#7fc49a;}
+.bad{color:#ff8f80;}
+/* Summary panel */
+.btn.sum{cursor:pointer;font:inherit;font-family:var(--mono);font-size:0.7rem;letter-spacing:0.14em;text-transform:uppercase;}
+.top-right{display:flex;gap:0.6rem;}
+.summary{
+  border:1px solid var(--line);
+  border-left:3px solid var(--brass);
+  border-radius:6px;
+  background:var(--panel);
+  padding:1rem 1.2rem 0.6rem;
+  margin:0 0 2rem;
+}
+.summary-label{font-family:var(--mono);font-size:0.68rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--fog);margin:0 0 0.6rem;}
+.summary p{margin:0 0 0.8rem;}
+.cursor{
+  display:inline-block;
+  width:0.55em;
+  height:1.05em;
+  margin-left:2px;
+  vertical-align:-0.15em;
+  background:var(--brass-hi);
+  animation:blink 1s steps(1) infinite;
+}
+@keyframes blink{50%{opacity:0;}}
+@media (prefers-reduced-motion: reduce){ .cursor{animation:none;} }
+@media (prefers-reduced-motion: no-preference){ #ship{transition:transform 0.6s ease;} #waterIn rect{transition:opacity 0.4s;} }
+</style>
+</head>
+<body>
+<main class="wrap">
+
+  <div class="top">
+    <a class="btn" href="index.html">⟵ Home</a>
+    <div class="top-right">
+      <button class="btn sum" id="sumBtn" type="button" aria-expanded="false" aria-controls="summary">Summarize</button>
+      <a class="btn" href="ship.html">3D ship</a>
+    </div>
+  </div>
+
+  <section class="summary" id="summary" hidden aria-live="polite">
+    <p class="summary-label">Summary</p>
+    <div id="sumText"></div>
+  </section>
+
+  <p class="eyebrow">The science of the night</p>
+  <h1>Why Titanic Floated, and Why She Sank</h1>
+  <p class="lede">A ship weighing about 52,000 tonnes, built mostly of steel, should sink like a stone. Titanic floated for one reason, discovered more than 2,000 years earlier by a Greek mathematician.</p>
+
+  <h2>Archimedes’ principle</h2>
+  <p>Archimedes lived in Syracuse, Sicily, around 250 BC. According to legend, he worked out the idea while stepping into a bath and watching the water rise, then ran through the streets shouting <em>“Eureka!”</em>, meaning “I have found it!”</p>
+
+  <div class="law">
+    Any object in water is pushed upward by a force equal to the <strong>weight of the water it pushes aside</strong>.
+    <div class="formula">Buoyant force = density of water × volume pushed aside × g</div>
+  </div>
+
+  <p>When you lower something into water, it shoves water out of the way. That displaced water wants its place back, so it pushes up on the object. If the push is as big as the object’s weight before it’s fully underwater, the object <strong>floats</strong>. If not, it <strong>sinks</strong>.</p>
+
+  <figure>
+    <svg viewBox="0 0 640 300" role="img" aria-label="A steel block sinks while a steel bowl of the same weight floats">
+      <rect x="0" y="130" width="640" height="170" fill="#1d4a66"/>
+      <line x1="0" y1="130" x2="640" y2="130" stroke="#3f86ad" stroke-width="2"/>
+      <!-- solid block -->
+      <text x="160" y="40" fill="#e6bd7d" font-family="Space Mono, monospace" font-size="15" text-anchor="middle">SOLID STEEL BLOCK</text>
+      <rect x="130" y="235" width="60" height="45" fill="#5b6670" stroke="#9aa6af"/>
+      <line x1="160" y1="225" x2="160" y2="180" stroke="#d1483a" stroke-width="4" marker-end="url(#down)"/>
+      <line x1="200" y1="270" x2="200" y2="240" stroke="#7fc49a" stroke-width="3" marker-end="url(#up)"/>
+      <text x="160" y="72" fill="#ece3d0" font-family="Cormorant Garamond, serif" font-size="18" text-anchor="middle">pushes aside very little water</text>
+      <text x="160" y="94" fill="#ff8f80" font-family="Cormorant Garamond, serif" font-size="18" text-anchor="middle">weight wins, so it sinks</text>
+      <!-- bowl -->
+      <text x="470" y="40" fill="#e6bd7d" font-family="Space Mono, monospace" font-size="15" text-anchor="middle">SAME STEEL, BOWL SHAPE</text>
+      <path d="M380 112 L560 112 L540 160 L400 160 Z" fill="#5b6670" stroke="#9aa6af"/>
+      <path d="M392 118 L548 118 L532 154 L408 154 Z" fill="#0d1b27"/>
+      <rect x="400" y="130" width="140" height="30" fill="#3f86ad" opacity="0.35"/>
+      <line x1="470" y1="190" x2="470" y2="166" stroke="#7fc49a" stroke-width="5" marker-end="url(#up)"/>
+      <text x="470" y="72" fill="#ece3d0" font-family="Cormorant Garamond, serif" font-size="18" text-anchor="middle">pushes aside lots of water</text>
+      <text x="470" y="94" fill="#7fc49a" font-family="Cormorant Garamond, serif" font-size="18" text-anchor="middle">buoyancy wins, so it floats</text>
+      <text x="470" y="215" fill="#cfe3ee" font-family="Space Mono, monospace" font-size="13" text-anchor="middle">shaded = water pushed aside</text>
+      <defs>
+        <marker id="up" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#7fc49a"/></marker>
+        <marker id="down" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#d1483a"/></marker>
+      </defs>
+    </svg>
+    <figcaption>Red arrow: weight. Green arrow: buoyant force. Shaping the same steel into a hollow bowl lets it push aside far more water.</figcaption>
+  </figure>
+
+  <h2>How a steel ship floats</h2>
+  <p>Steel is about <strong>7.7 times denser</strong> than seawater, so a lump of it sinks. But Titanic was not a lump. Her hull was a giant steel shell full of <strong>air</strong>: cabins, corridors, boiler rooms and cargo holds. Averaged over that whole volume, the ship was much lighter than the same volume of seawater.</p>
+  <p>So she settled into the sea until the water she pushed aside weighed exactly as much as she did. That happened when her hull was about 10.5 metres deep in the water.</p>
+
+  <div class="table-wrap">
+    <table class="numbers">
+      <tr><td>Titanic’s weight, fully loaded</td><td>about 52,000 tonnes</td></tr>
+      <tr><td>Density of seawater</td><td>about 1,025 kg/m³</td></tr>
+      <tr><td>Seawater she had to push aside to float (52,000 t ÷ 1.025 t/m³)</td><td>about 50,700 m³</td></tr>
+      <tr><td>That’s roughly the volume of</td><td>20 Olympic pools</td></tr>
+      <tr><td>Depth of hull below the waterline (draught)</td><td>about 10.5 m</td></tr>
+    </table>
+  </div>
+
+  <!-- YOUR PICTURE: upload a photo to the repository (for example titanic-photo.jpg)
+       and it will appear here. If the file isn't there, this whole figure hides itself. -->
+  <figure id="photoFigure">
+    <img src="titanic-photo.jpg" alt="Titanic at sea" loading="lazy" onerror="document.getElementById('photoFigure').remove()">
+    <figcaption>Titanic in 1912. Most of the ship you can see is above the water, but the part that keeps her afloat is the 10.5 metres hidden below the waterline.</figcaption>
+  </figure>
+
+  <h2>Why she sank anyway</h2>
+  <p>Titanic’s hull was divided into <strong>16 watertight compartments</strong> by 15 steel walls called bulkheads. If a few flooded, the rest would still push aside enough water to keep her up. She was designed to stay afloat with <strong>any two</strong> compartments flooded, or with <strong>the first four</strong> at the bow.</p>
+  <p>The iceberg opened <strong>six</strong>. As seawater poured in, it replaced air, so the ship grew heavier without getting any bigger. To push aside enough water to balance that extra weight, she had to sink deeper, and the bow went down first.</p>
+  <p>The bulkheads didn’t reach all the way to the top deck. As the bow dropped, water rose over the top of one bulkhead and spilled into the next compartment, then the next, like water filling an ice-cube tray tipped at one end. Once that started, sinking couldn’t be stopped.</p>
+
+  <div class="demo">
+    <svg viewBox="0 0 800 260" role="img" aria-label="Side view of Titanic with flooded compartments" id="demoSvg">
+      <rect x="0" y="0" width="800" height="260" fill="#0d1b27"/>
+      <g id="ship">
+        <!-- hull side view: stern on the left, bow on the right -->
+        <path d="M60 90 L740 90 L760 92 L735 190 L120 190 Q70 185 55 140 Z" fill="#141414" stroke="#6b7680" stroke-width="1.5"/>
+        <rect x="80" y="70" width="640" height="20" fill="#d9d4c8"/>
+        <g fill="#c79a3a">
+          <rect x="250" y="25" width="22" height="45"/><rect x="340" y="25" width="22" height="45"/>
+          <rect x="430" y="25" width="22" height="45"/><rect x="520" y="25" width="22" height="45"/>
+        </g>
+        <g fill="#111"><rect x="250" y="25" width="22" height="9"/><rect x="340" y="25" width="22" height="9"/><rect x="430" y="25" width="22" height="9"/><rect x="520" y="25" width="22" height="9"/></g>
+        <g id="waterIn"></g>
+        <g id="bulkheads" stroke="#8aa0ad" stroke-width="1.5"></g>
+      </g>
+      <rect id="seaRect" x="0" y="150" width="800" height="110" fill="#1d4a66" opacity="0.88"/>
+      <line x1="0" y1="150" x2="800" y2="150" stroke="#3f86ad" stroke-width="2"/>
+      <text x="20" y="245" fill="#cfe3ee" font-family="Space Mono, monospace" font-size="13">STERN</text>
+      <text x="780" y="245" fill="#cfe3ee" font-family="Space Mono, monospace" font-size="13" text-anchor="end">BOW</text>
+    </svg>
+    <label for="flood">Flooded compartments at the bow: <span id="floodN">0</span></label>
+    <input type="range" id="flood" min="0" max="6" step="1" value="0">
+    <p class="status" id="status"></p>
+  </div>
+  <p style="font-size:1rem;color:var(--fog)">This model is simplified to show the idea. The real ship sank over 2 hours and 40 minutes.</p>
+
+  <h2>The lesson</h2>
+  <p>Archimedes’ principle never stopped working that night. Right up to the end, the sea pushed up on Titanic with a force exactly equal to the weight of the water she displaced. What changed was <strong>what was inside her</strong>. Every tonne of seawater that replaced air made the ship heavier, until no amount of sinking deeper could push aside enough water to hold her up.</p>
+
+</main>
+
+<script>
+(function(){
+  // 16 compartments, stern (left) to bow (right). Bulkhead tops stop below the deck.
+  var x0 = 70, x1 = 745, n = 16;
+  var w = (x1 - x0) / n;
+  var bh = document.getElementById('bulkheads');
+  var wi = document.getElementById('waterIn');
+  var cells = [];
+  for(var i = 0; i < n; i++){
+    var x = x0 + i * w;
+    if(i > 0){
+      var l = document.createElementNS('http://www.w3.org/2000/svg','line');
+      l.setAttribute('x1', x); l.setAttribute('x2', x);
+      l.setAttribute('y1', 112); l.setAttribute('y2', 188);   // bulkhead stops short of the deck
+      bh.appendChild(l);
+    }
+    var r = document.createElementNS('http://www.w3.org/2000/svg','rect');
+    r.setAttribute('x', x + 1); r.setAttribute('width', w - 2);
+    r.setAttribute('y', 112); r.setAttribute('height', 76);
+    r.setAttribute('fill', '#3f86ad'); r.setAttribute('opacity', '0');
+    wi.appendChild(r);
+    cells.push(r);
+  }
+
+  // How far the ship sinks and tilts for each number of flooded bow compartments (illustrative)
+  var drop  = [0, 3, 6, 9, 12, 16, 20];
+  var tilt  = [0, 0.8, 1.6, 2.5, 3.4, 6.5, 10];
+  var notes = [
+    '<b class="ok">AFLOAT</b> No damage. The ship pushes aside about 50,700 m³ of seawater, exactly her own weight.',
+    '<b class="ok">AFLOAT</b> One compartment flooded. The bow sits a little lower, but she is safe.',
+    '<b class="ok">AFLOAT</b> Two compartments flooded. Titanic was designed to survive this anywhere along her length.',
+    '<b class="ok">AFLOAT</b> Three bow compartments flooded. Lower at the bow, still safe.',
+    '<b class="ok">AFLOAT, JUST</b> Four bow compartments flooded: the most the design could survive. The water stays below the tops of the bulkheads.',
+    '<b class="bad">SINKING</b> Five flooded. The bow drops so far that water spills over the top of the next bulkhead.',
+    '<b class="bad">SINKING</b> Six flooded, as on the night. Water spills from compartment to compartment and the ship cannot be saved.'
+  ];
+
+  var slider = document.getElementById('flood');
+  var ship = document.getElementById('ship');
+  function show(k){
+    for(var i = 0; i < n; i++){
+      cells[i].setAttribute('opacity', i >= n - k ? '0.75' : '0');
+    }
+    // spill-over: with 5+ flooded, water starts creeping into the next compartments too
+    if(k >= 5){ for(var j = 1; j <= k - 4; j++){ var c = cells[n - k - j]; if(c) c.setAttribute('opacity', '0.4'); } }
+    ship.setAttribute('transform', 'translate(0 ' + drop[k] + ') rotate(' + tilt[k] + ' 120 150)');
+    document.getElementById('floodN').textContent = k;
+    document.getElementById('status').innerHTML = notes[k];
+  }
+  slider.addEventListener('input', function(){ show(+slider.value); });
+  show(0);
+})();
+
+// ---------- Summarize: types out a short summary with a blinking cursor ----------
+(function(){
+  var SUMMARY = [
+    'Archimedes’ principle: water pushes up on any object with a force equal to the weight of the water the object pushes aside.',
+    'Titanic floated because her steel hull was full of air. She sank about 10.5 m into the sea, pushing aside roughly 50,700 m³ of seawater, which weighed the same as her 52,000 tonnes.',
+    'She could survive four flooded compartments at the bow, but the iceberg opened six. Seawater replaced air, the bow sank lower, and water spilled over the bulkheads from one compartment to the next until she went down.'
+  ];
+  var btn = document.getElementById('sumBtn');
+  var panel = document.getElementById('summary');
+  var out = document.getElementById('sumText');
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var running = null;
+
+  function cursor(){ var c = document.createElement('span'); c.className = 'cursor'; c.setAttribute('aria-hidden','true'); return c; }
+
+  function generate(){
+    out.textContent = '';
+    var cur = cursor();
+    var para = document.createElement('p');
+    para.appendChild(cur);
+    out.appendChild(para);
+    if(reduce){
+      out.innerHTML = SUMMARY.map(function(t){ return '<p>' + t + '</p>'; }).join('');
+      return;
+    }
+    var pi = 0, words = SUMMARY[0].split(' '), wi = 0;
+    var token = {};
+    running = token;
+    function step(){
+      if(running !== token) return;
+      if(wi < words.length){
+        cur.insertAdjacentText('beforebegin', (wi ? ' ' : '') + words[wi]);
+        wi++;
+        var w = words[wi - 1];
+        // short pause after punctuation, otherwise a quick, slightly uneven pace
+        var delay = /[.,:;]$/.test(w) ? 180 + Math.random()*160 : 35 + Math.random()*70;
+        setTimeout(step, delay);
+      } else if(pi < SUMMARY.length - 1){
+        pi++; words = SUMMARY[pi].split(' '); wi = 0;
+        para = document.createElement('p');
+        para.appendChild(cur);
+        out.appendChild(para);
+        setTimeout(step, 350);
+      } else {
+        setTimeout(function(){ if(running === token) cur.remove(); }, 2200);
+        running = null;
+      }
+    }
+    setTimeout(step, 1100);   // "thinking": just the blinking cursor for a moment
+  }
+
+  btn.addEventListener('click', function(){
+    if(panel.hidden){
+      panel.hidden = false;
+      btn.textContent = 'Hide summary';
+      btn.setAttribute('aria-expanded','true');
+      generate();
+      panel.scrollIntoView({behavior: reduce ? 'auto' : 'smooth', block:'nearest'});
+    } else {
+      panel.hidden = true;
+      running = null;
+      btn.textContent = 'Summarize';
+      btn.setAttribute('aria-expanded','false');
+    }
+  });
+})();
+</script>
+</body>
+</html>
