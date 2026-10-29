@@ -2,6 +2,11 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#08131d">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Why Titanic Floated, and Why She Sank</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -148,6 +153,7 @@ figcaption{font-family:var(--mono);font-size:0.72rem;letter-spacing:0.04em;color
 @keyframes blink{50%{opacity:0;}}
 @media (prefers-reduced-motion: reduce){ .cursor{animation:none;} }
 @media (prefers-reduced-motion: no-preference){ #waterIn rect{transition:opacity 0.4s;} }
+.next{margin-top:2.4rem;}
 /* Block vs Titanic comparison */
 .compare-captions{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2fr);gap:1.2rem;margin-top:0.8rem;}
 .compare-captions div{min-width:0;}
@@ -282,6 +288,8 @@ figcaption{font-family:var(--mono);font-size:0.72rem;letter-spacing:0.04em;color
 
   <h2>The lesson</h2>
   <p>Archimedes’ principle never stopped working that night. Right up to the end, the sea pushed up on Titanic with a force exactly equal to the weight of the water she displaced. What changed was <strong>what was inside her</strong>. Every tonne of seawater that replaced air made the ship heavier, until no amount of sinking deeper could push aside enough water to hold her up.</p>
+
+  <p class="next"><a class="btn" href="breakup.html">Next: Why she broke apart ⟶</a></p>
 
 </main>
 
