@@ -316,6 +316,21 @@ h1{
 </div>
 <main class="night">
   <div class="above">
+    <!-- Logo, top left -->
+  <a class="brand" href="index.html" aria-label="The Unsinkable: Myth of Titanic, home">
+    <style>
+      .brand{position:absolute;top:1rem;left:max(16px, env(safe-area-inset-left, 0px));z-index:3;display:flex;align-items:center;gap:0.7rem;text-decoration:none;}
+      .brand img{width:3.6rem;height:3.6rem;border-radius:50%;box-shadow:0 0 0 2px rgba(230,189,125,0.55), 0 6px 18px rgba(0,0,0,0.5);}
+      .brand span{display:flex;flex-direction:column;line-height:1.05;}
+      .brand b{font-family:var(--display);font-weight:700;font-size:1.05rem;letter-spacing:0.14em;color:var(--ivory);}
+      .brand i{font-family:var(--mono);font-style:normal;font-size:0.62rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--brass-hi);margin-top:0.3rem;}
+      @media (max-width:900px){
+        .brand{position:static;justify-content:center;padding-top:1rem;}
+      }
+    </style>
+    <img src="logo-badge.png" alt="" width="256" height="256">
+    <span><b>THE UNSINKABLE</b><i>Myth of Titanic</i></span>
+  </a>
   <div class="stars" aria-hidden="true"></div>
 
   <section class="inner sky">
