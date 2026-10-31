@@ -569,6 +569,18 @@ async function loadModel(){
     const gltf = await new Promise((resolve, reject) => new GLTFLoader().parse(buffer, '', resolve, reject));
     gltf.scene.traverse(o => {
       if(o.isMesh){
+        // The file stores shapes as compact whole numbers. Some older phone graphics chips
+        // (e.g. OnePlus 5 / Android 7) draw nothing from that format, so turn it back
+        // into ordinary decimal numbers before drawing. It only takes a moment.
+        const g = o.geometry;
+        for(const name of Object.keys(g.attributes)){
+          const at = g.attributes[name];
+          if(at.isInterleavedBufferAttribute || at.array instanceof Float32Array) continue;
+          const n = at.count, k = at.itemSize, out = new Float32Array(n * k);
+          const get = [at.getX, at.getY, at.getZ, at.getW];
+          for(let i = 0; i < n; i++) for(let c = 0; c < k; c++) out[i*k + c] = get[c].call(at, i);
+          g.setAttribute(name, new THREE.BufferAttribute(out, k));
+        }
         o.material.side = THREE.DoubleSide;
         o.matrixAutoUpdate = false;
         o.updateMatrix();
