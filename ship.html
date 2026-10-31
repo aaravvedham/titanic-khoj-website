@@ -2,8 +2,13 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#08131d">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
-<title>Titanic in 3D</title>
+<title>R.M.S. Titanic in 3D</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Space+Mono:wght@400;700&display=swap">
@@ -288,7 +293,7 @@ body.no-labels .pin .tag{display:none;}
 
 <header class="bar top-bar">
   <div class="title-block">
-    <h1 class="title">Titanic</h1>
+    <h1 class="title">R.M.S. TITANIC</h1>
     <div class="subtitle">Olympic-class liner · 269 m · launched 1911</div>
   </div>
   <div class="actions">
@@ -318,16 +323,25 @@ body.no-labels .pin .tag{display:none;}
   <div class="loader-note" id="loaderNote">Loading the 3D model</div>
 </div>
 
-<script type="importmap">
-{ "imports": {
-  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
-  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
-} }
-</script>
 <script type="module">
-import * as THREE from 'three';
-import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+// Files are fetched from jsDelivr (fast) first, then from this site itself as a backup.
+// Some older phones (e.g. Chrome on Android 7) can't connect to jsDelivr, so the backup matters.
+const BASES = ['https://cdn.jsdelivr.net/gh/aaravvedham/titanic-khoj-website@main/', './'];
+
+async function loadThree(){
+  for(const base of BASES){
+    try { return await import(base + 'three-bundle.js'); }
+    catch(e){ console.warn('3D engine not reachable at', base, e); }
+  }
+  throw new Error('3D engine could not be loaded');
+}
+
+loadThree().then(THREE => main(THREE, THREE.GLTFLoader, THREE.OrbitControls)).catch(err => {
+  console.error(err);
+  document.getElementById('loaderNote').textContent = 'The 3D viewer couldn\u2019t start. Check the internet connection and reload the page.';
+});
+
+function main(THREE, GLTFLoader, OrbitControls){
 
 // Model coordinates are metres: stern at x≈0, bow at x≈270, up is +y, starboard is +z.
 const WATERLINE = -15.6;
@@ -526,8 +540,11 @@ const loaderNote = document.getElementById('loaderNote');
 const MODEL_BYTES = 3562404;   // size of titanic.glb, for the progress bar
 
 async function fetchModelBytes(){
-  const res = await fetch('https://cdn.jsdelivr.net/gh/aaravvedham/titanic-khoj-website@main/titanic.glb');
-  if(!res.ok) throw new Error('HTTP ' + res.status);
+  let res = null;
+  for(const base of BASES){
+    try { res = await fetch(base + 'titanic.glb'); if(res.ok) break; } catch(e){ res = null; }
+  }
+  if(!res || !res.ok) throw new Error('model not reachable');
   const total = Number(res.headers.get('content-length')) || MODEL_BYTES;
   if(!(res.body && res.body.getReader)) return await res.arrayBuffer();
   const reader = res.body.getReader();
@@ -578,6 +595,7 @@ requestAnimationFrame(tick);
 
 // Small hook used only for generating the home-page picture
 window.__ship = { renderer, scene, camera, controls, setSea, requestRender, THREE };
+}
 </script>
 </body>
 </html>
