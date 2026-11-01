@@ -9,6 +9,11 @@
 <meta name="theme-color" content="#08131d">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="Steer Titanic past the iceberg, or explore the ship in 3D.">
+<meta name="google-site-verification" content="u24ddhVVdLjNWDu2rg0ZUN-oShqRctt7E_75yOXTSf4">
+<meta property="og:title" content="Titanic — The Unsinkable, Myth of Titanic">
+<meta property="og:description" content="Steer Titanic past the iceberg in a one-minute game, explore the whole ship in 3D, and learn why she floated and why she broke apart.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://aaravvedham.github.io/titanic-khoj-website/">
 <title>Titanic</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -269,6 +274,17 @@ h1{
 .timeline li:nth-child(2) time{color:#ff9b8e;}
 .timeline span{font-size:1.05rem;line-height:1.35;color:var(--fog);}
 
+/* Credits line */
+.credits{
+  text-align:center;
+  padding:0.4rem 1rem calc(1.6rem + env(safe-area-inset-bottom, 0px));
+  font-family:var(--mono);
+  font-size:0.68rem;
+  letter-spacing:0.12em;
+  color:#6f8796;
+}
+.credits a{color:var(--fog);}
+
 @media (max-width:760px){
   .doors{grid-template-columns:1fr;padding-block:2.2rem 1.8rem;}
   .timeline ol{grid-template-columns:repeat(2, minmax(0, 1fr));}
@@ -403,6 +419,9 @@ h1{
       <div class="link">aaravvedham.github.io/titanic-khoj-website</div>
     </div>
   </section>
+  <p class="credits inner">
+    3D ship model based on a design by <a href="https://cad.onshape.com/documents/cc7a36141cd1e1d47409aa75/w/a191da768dba23bfd0525dfb/e/f4d120636d080d908e695ac8"> Michael Kennedy </a> (Onshape), exported and modified for this site.
+  </p>
 </main>
 
 <script>
